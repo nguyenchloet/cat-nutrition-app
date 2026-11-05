@@ -54,3 +54,29 @@ button {
   font-size: 14px;
   cursor: pointer;
 }
+
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+nav button.active {
+  background: #345c46;
+  color: white;
+}
+
+main {
+  padding-bottom: 110px;
+}
