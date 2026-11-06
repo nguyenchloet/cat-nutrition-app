@@ -1,63 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Nutrition Tracker</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="app.js" defer></script>
-    <p>Daily meals and health tracking.</p>
-</html>
-<body>
-    <header>
-        <h1>Cat Nutrition Tracker</h1>
-    </header>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cat Nutrition Tracker</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="app.js" defer></script>
+    </head>
 
-    <main>
-        <section id="tonight" class="page-active">
-            <div class="card">
-                <h2>Tonight's Dinner</h2>
-                <p>Annie: Chicken</p>
-                <p>Gus: Chicken</p>
-            </div>
-        </section>
+    <body>
+        <header>
+            <h1>Cat Nutrition Tracker</h1>
+            <p>Daily meals and health tracking.</p>
+        </header>
 
-        <section id="history" class="page">
-            <div class="card">
-                <h2>Meal History</h2>
-                <p>Recorded meals will appear here.</p>
-            </div>
-        </section>
+        <main>
+            <section id="tonight" class="page active">
+                <div class="card">
+                    <h2>Tonight's Dinner</h2>
+                    <label for="protein">Choose a protein:</label>
+                    <select id="protein">
+                        <option value="chicken">Chicken</option>
+                        <option value="fish">Salmon</option>
+                        <option value="beef">Turkey</option>
+                    </select>
+                    <div id="recipes"></div>
+                </div>
+            </section>
 
-        <section id="weights" class="page">
-            <div class="card">
-                <h2>Weight Tracking</h2>
-                <p>Annie: 9.3 lb</p>
-                <p>Gus: 10.5 lb</p>
-            </div>
-        </section>
+            <section id="history" class="page">
+                <div class="card">
+                    <h2>Meal History</h2>
+                    <p>Recorded meals will appear here.</p>
+                </div>
+            </section>
 
-        <section id="products" class="page">
-            <div class="card">
-                <h2>Saved Products</h2>
-                <p>Your cat food products will appear here.</p>
-            </div>
-        </section>
+            <section id="weights" class="page">
+                <div class="card">
+                    <h2>Weight Tracking</h2>
+                    <p>Annie: 9.3 lb</p>
+                    <p>Gus: 10.5 lb</p>
+                </div>
+            </section>
 
-        <section id="settings" class="page">
-            <div class="card">
-                <h2>Settings</h2>
-                <p>Manage your cats and app preferences.</p>
-            </div>
-        </section>
-    </main>
+            <section id="products" class="page">
+                <div class="card">
+                    <h2>Saved Products</h2>
+                    <p>Your cat food products will appear here.</p>
+                </div>
+            </section>
 
-    <nav>
-        <button data-page="tonight" class="active">Tonight</button>
-        <button data-page="history">History</button>
-        <button data-page="weights">Weights</button>
-        <button data-page="products">Products</button>
-        <button data-page="settings">Settings</button>
-  </nav>
+            <section id="settings" class="page">
+                <div class="card">
+                    <h2>Settings</h2>
+                    <p>Manage your cats and app preferences.</p>
+                </div>
+            </section>
+        </main>
 
-</body>
+        <nav>
+            <button data-page="tonight" class="active">Tonight</button>
+            <button data-page="history">History</button>
+            <button data-page="weights">Weights</button>
+            <button data-page="products">Products</button>
+            <button data-page="settings">Settings</button>
+    </nav>
+
+    </body>
 </html>
