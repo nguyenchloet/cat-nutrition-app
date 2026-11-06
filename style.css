@@ -247,37 +247,44 @@ main {
     background-color: #f5caca;
 }
 
-.feeding-row input[type="checkbox"] {
+.feeding-row input[type="checkbox"],
+#dinnerRecipes .cat-feeding input[type="checkbox"] {
     appearance: none;
-    width: 26px;
-    height: 26px;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
     margin: 0;
     flex-shrink: 0;
     border: 2px solid #aeb9b0;
     border-radius: 6px;
     background-color: white;
     cursor: pointer;
-    display: grid;
-    place-items: center;
     transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
 }
 
-.feeding-row input[type="checkbox"]:checked {
+.feeding-row input[type="checkbox"]:checked,
+#dinnerRecipes .cat-feeding input[type="checkbox"]:checked {
     background-color: #345c46;
     border-color: #345c46;
     box-shadow: 0 1px 3px rgba(52, 92, 70, 0.2);
 }
 
-.feeding-row input[type="checkbox"]:checked::after {
+.feeding-row input[type="checkbox"]:checked::after,
+#dinnerRecipes .cat-feeding input[type="checkbox"]:checked::after {
     content: "✓";
     color: white;
-    font-size: 21px;
+    font-size: 17px;
     font-weight: bold;
     line-height: 1;
 }
 
 .feeding-row:has(input[type="checkbox"]:checked) {
     background-color: #edf4ed;
+}
+
+.feeding-row:has(input[type="checkbox"]:checked) > span:first-child {
+    color: #345c46;
 }
 
 .cat-feeding > button {
@@ -356,14 +363,21 @@ main {
     white-space: nowrap;
 }
 
-#dinnerRecipes .cat-feeding input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #345c46;
+#dinnerRecipes .cat-feeding > label:has(input[type="checkbox"]) {
+    display: flex;
+    min-height: 44px;
+    margin: 10px 0 2px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background-color: #f8faf8;
+    color: #46564b;
+    font-weight: 550;
+    transition: background-color 140ms ease, color 140ms ease;
 }
 
-#dinnerRecipes .cat-feeding:has(input[type="checkbox"]:checked) {
-    background-color: #f5f9f5;
+#dinnerRecipes .cat-feeding > label:has(input[type="checkbox"]:checked) {
+    background-color: #edf4ed;
+    color: #345c46;
 }
 
 #saveFeedings {
