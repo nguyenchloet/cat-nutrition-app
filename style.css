@@ -80,3 +80,27 @@ nav button.active {
 main {
   padding-bottom: 110px;
 }
+
+
+.recipe-card {
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+}
+
+.recipe-card h3 {
+    margin-top: 0;
+}
+
+.recipe-card li {
+    margin-bottom: 8px;
+}
+
+#protein {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    font: inherit;
+}
