@@ -211,6 +211,7 @@ section.appendChild(addButton);
 
         const result = document.createElement("p");
         const dinnerResult = document.createElement("p");
+        const recipeIngredients = document.createElement("ul");
        
         function calculate() {
             const totalDryGrams = feedingData[cat.id].reduce((total, feeding) => {
@@ -236,11 +237,21 @@ section.appendChild(addButton);
                     : wetFoodSelect.value;
 
                 if (selectWetFoodType === "canned") {
+                  recipeIngredients.replaceChildren();
                   const selectedCanned = cannedRecipes[selectedProtein];
                   const wetFoodGrams = remainingCalories / selectedCanned.caloriesPerGram;
                   dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
                 } else if (selectWetFoodType === "homemade") { 
                   const selectedRecipe = recipes[selectedProtein][cat.name];
+
+                  recipeIngredients.replaceChildren();
+                  selectedRecipe.ingredients.forEach(ingredient => {
+                    const item = document.createElement("li");
+
+                    item.textContent = `${ingredient.name}: ${ingredient.grams} g`;
+
+                    recipeIngredients.appendChild(item);
+                  });
                   const recipeGrams = selectedRecipe.ingredients.reduce(
                     (sum, ingredient) => sum + ingredient.grams,
                     0
@@ -338,7 +349,7 @@ section.appendChild(addButton);
         overrideLabel.appendChild(overrideSelect);
         flavorLabel.appendChild(flavorSelect);
 
-        wetFoodSection.append(wetFoodHeading, overrideLabel, flavorLabel, dinnerResult);
+        wetFoodSection.append(wetFoodHeading, overrideLabel, flavorLabel, dinnerResult, recipeIngredients);
         dinnerContainer.appendChild(wetFoodSection);
         
         calculate();
