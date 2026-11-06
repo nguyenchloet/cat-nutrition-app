@@ -115,6 +115,7 @@ const dinnerContainer = document.getElementById("dinnerRecipes");
 
 const feedingData = {};
 const wetFoodOverrides = {};
+const wetFoodCompleted = {};
 
 /* Display the dry food calculator for each cat */
 function displayDryFoodCalculator() {
@@ -248,7 +249,13 @@ section.appendChild(addButton);
                   selectedRecipe.ingredients.forEach(ingredient => {
                     const item = document.createElement("li");
 
-                    item.textContent = `${ingredient.name}: ${ingredient.grams} g`;
+                    const name = document.createElement("span");
+                    name.textContent = ingredient.name;
+
+                    const amount = document.createElement("span");
+                    amount.textContent = `${ingredient.grams} g`;
+
+                    item.append(name, amount);
 
                     recipeIngredients.appendChild(item);
                   });
@@ -349,7 +356,22 @@ section.appendChild(addButton);
         overrideLabel.appendChild(overrideSelect);
         flavorLabel.appendChild(flavorSelect);
 
-        wetFoodSection.append(wetFoodHeading, overrideLabel, flavorLabel, dinnerResult, recipeIngredients);
+        const wetFoodCheckboxLabel = document.createElement("label");
+
+        const wetFoodCheckbox = document.createElement("input");
+        wetFoodCheckbox.type = "checkbox";
+        wetFoodCheckbox.checked = wetFoodCompleted[cat.id] || false;
+
+        wetFoodCheckbox.addEventListener("change", () => {
+            wetFoodCompleted[cat.id] = wetFoodCheckbox.checked;
+        });
+
+        wetFoodCheckboxLabel.append(
+            wetFoodCheckbox,
+            " Wet food eaten"
+        );
+
+        wetFoodSection.append(wetFoodHeading, overrideLabel, flavorLabel, dinnerResult, recipeIngredients, wetFoodCheckboxLabel);
         dinnerContainer.appendChild(wetFoodSection);
         
         calculate();
@@ -358,5 +380,62 @@ section.appendChild(addButton);
 
 proteinSelect.addEventListener("change", displayDryFoodCalculator);
 wetFoodSelect.addEventListener("change", displayDryFoodCalculator);
+
+/* Save the date, each cat's calorie target, dry food feedings and completion status, dry food calories, and selected wet food type and flavor */
+const saveFeedingsButton = document.getElementById("saveFeedings");
+
+saveFeedingsButton.addEventListener("click", () => {
+    const today = new Date().toLocaleDateString("en-CA");
+
+    const dailyRecord = {
+        date: today,
+        cats: cats.map(cat => {
+            const dryFeedings = feedingData[cat.id].map(feeding => ({
+                id: feeding.id,
+                grams: feeding.grams,
+                completed: feeding.completed
+            }));
+
+            const dryCalories = dryFeedings.reduce(
+                (total, feeding) =>
+                    total + (feeding.completed
+                        ? feeding.grams * dryFoodCaloriesPerGram
+                        : 0),
+                0
+            );
+
+            const override = wetFoodOverrides[cat.id];
+
+            return {
+                id: cat.id,
+                name: cat.name,
+                dailyCalories: cat.dailyCalories,
+                dryFeedings,
+                dryCalories,
+                wetFoodType: override?.type || wetFoodSelect.value,
+                wetFoodFlavor: override?.flavor || proteinSelect.value,
+                wetFoodCompleted: wetFoodCompleted[cat.id] || false
+            };
+        })
+    };
+
+    const history = JSON.parse(
+        localStorage.getItem("feedingHistory") || "[]"
+    );
+
+    const existingIndex = history.findIndex(
+        record => record.date === today
+    );
+
+    if (existingIndex >= 0) {
+        history[existingIndex] = dailyRecord;
+    } else {
+        history.push(dailyRecord);
+    }
+
+    localStorage.setItem("feedingHistory", JSON.stringify(history));
+
+    saveFeedingsButton.textContent = "Feedings Saved";
+});
 
 displayDryFoodCalculator();
