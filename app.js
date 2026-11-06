@@ -31,11 +31,10 @@ const recipes = {
        id: "14940223",
             calories: 242.1,
             ingredients: [
-                { name: "Chicken breast, skinless, boneless, cooked, roasted", grams: 96 },
-                { name: "Canola oil", grams: 5 },
-                { name: "Welactin Advanced 3TA", grams: 0.12 },
-                { name: "White long-grain rice, cooked", grams: 30 },
-                { name: "Balance IT Carnivore Blend", grams: 2.9 }
+                { name: "Chicken breast, skinless, boneless, cooked, roasted", grams: 99 },
+                { name: "Canola oil", grams: 6 },
+                { name: "Nordic Naturals Omega-3 Pet Liquid", grams: 2.1 },
+                { name: "Balance IT Carnivore Blend", grams: 2.84 }
             ]
     },
     Gus: {
