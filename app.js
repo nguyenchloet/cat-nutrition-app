@@ -26,8 +26,8 @@ const proteinSelect = document.getElementById("protein");
 const recipeContainer = document.getElementById("recipes");
 
 const cats = [
-    { id: "annie", name: "Annie" },
-    { id: "gus", name: "Gus" }
+    { id: "annie", name: "Annie", dailyCalories: 235.9 },
+    { id: "gus", name: "Gus", dailyCalories: 262.1 }
 ];
 
 const recipes = {
@@ -120,11 +120,16 @@ displayRecipes(); // Display recipes for the default selected protein on page lo
 
 const dryFoodCaloriesPerGram = 3.674;
 const dryFoodContainer = document.getElementById("dryFoodCalculator");
+const feedingAmounts = {};
 
 function displayDryFoodCalculator() {
     dryFoodContainer.replaceChildren();
 
     cats.forEach(cat => {
+        if (!feedingAmounts[cat.id]) {
+            feedingAmounts[cat.id] = { feeding1: 10, feeding2: 10 };
+        }
+
         const section = document.createElement("div");
         section.className = "cat-feeding";
 
@@ -135,13 +140,13 @@ function displayDryFoodCalculator() {
         feeding1.type = "number";
         feeding1.min = "0";
         feeding1.step = "0.1";
-        feeding1.value = "10";
+        feeding1.value = feedingAmounts[cat.id].feeding1;
 
         const feeding2 = document.createElement("input");
         feeding2.type = "number";
         feeding2.min = "0";
         feeding2.step = "0.1";
-        feeding2.value = "10";
+        feeding2.value = feedingAmounts[cat.id].feeding2;
 
         const label1 = document.createElement("label");
         label1.textContent = "Feeding 1 (grams)";
@@ -151,14 +156,32 @@ function displayDryFoodCalculator() {
 
         const result = document.createElement("p");
 
+        const dinnerResult = document.createElement("p");
+
         function calculate() {
             const grams1 = Number(feeding1.value);
             const grams2 = Number(feeding2.value);
+            feedingAmounts[cat.id].feeding1 = grams1;
+            feedingAmounts[cat.id].feeding2 = grams2;
 
-            const calories = (grams1 + grams2) * dryFoodCaloriesPerGram;
+            const dryCalories = (grams1 + grams2) * dryFoodCaloriesPerGram;
+
+            const remainingCalories = Math.max(0, cat.dailyCalories - dryCalories);
 
             result.textContent =
-                `Estimated dry food: ${calories.toFixed(1)} kcal`;
+                `Daily target: ${cat.dailyCalories.toFixed(1)} kcal | ` + 
+                `Dry food calories: ${dryCalories.toFixed(1)} kcal | ` +
+                `Remaining calories for dinner: ${remainingCalories.toFixed(1)} kcal`;
+
+                const selectedProtein = proteinSelect.value;
+                const selectedRecipe = recipes[selectedProtein][cat.name];
+                if (selectedRecipe) {
+                    const dinnerCalories = remainingCalories;
+                    const dinnerGrams = (dinnerCalories / selectedRecipe.calories) * selectedRecipe.ingredients.reduce((sum, ingredient) => sum + ingredient.grams, 0);
+                    dinnerResult.textContent = `Dinner portion: ${dinnerGrams.toFixed(1)} grams of ${selectedProtein}`;
+                } else {
+                    dinnerResult.textContent = "No recipe available for this protein.";
+                }
         }
 
         feeding1.addEventListener("input", calculate);
@@ -167,7 +190,7 @@ function displayDryFoodCalculator() {
         label1.appendChild(feeding1);
         label2.appendChild(feeding2);
 
-        section.append(heading, label1, label2, result);
+        section.append(heading, label1, label2, result, dinnerResult);
         dryFoodContainer.appendChild(section);
 
         calculate();
