@@ -438,4 +438,24 @@ saveFeedingsButton.addEventListener("click", () => {
     saveFeedingsButton.textContent = "Feedings Saved";
 });
 
+function loadTodaysFeedings() {
+    const today = new Date().toLocaleDateString("en-CA");
+
+    const history = JSON.parse(
+        localStorage.getItem("feedingHistory") || "[]"
+    );
+
+    const todayRecord = history.find(record => record.date === today);
+
+    if (!todayRecord) return;
+
+    todayRecord.cats.forEach(savedCat => {
+        feedingData[savedCat.id] = savedCat.dryFeedings;
+
+        wetFoodCompleted[savedCat.id] =
+            savedCat.wetFoodCompleted || false;
+    });
+}
+
+loadTodaysFeedings();
 displayDryFoodCalculator();
