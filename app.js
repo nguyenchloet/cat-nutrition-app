@@ -24,6 +24,29 @@ navButtons.forEach(button => {
 
 const proteinSelect = document.getElementById("protein");
 
+const wetFoodSelect = document.getElementById("wetFoodType");
+
+/* Update wet food flavors based on selection: Balance.IT or canned food (Halo) */
+function updateWetFoodFlavors() {
+    const selectedType = wetFoodSelect.value;
+
+    proteinSelect.replaceChildren();
+
+    const flavors = selectedType === "canned" ? ["chicken", "salmon", "turkey"] : ["chicken", "turkey"];
+
+    flavors.forEach(flavor => {
+        const option = document.createElement("option");
+        option.value = flavor;
+        option.textContent = flavor.charAt(0).toUpperCase() + flavor.slice(1);
+        proteinSelect.appendChild(option);
+    });
+}
+
+wetFoodSelect.addEventListener("change", updateWetFoodFlavors);
+
+updateWetFoodFlavors();
+
+/* Data for cats and their recipes 20261106 */
 const cats = [
     { id: "annie", name: "Annie", dailyCalories: 235.9 },
     { id: "gus", name: "Gus", dailyCalories: 262.1 }
@@ -79,13 +102,24 @@ const recipes = {
 };
 
 const dryFoodCaloriesPerGram = 3.674;
+
+/* Recipes for canned Halo cat food. Add other types later */
+const cannedRecipes = {
+    chicken: { caloriesPerGram: 1.025 },
+    salmon: { caloriesPerGram: 1.047 },
+    turkey: { caloriesPerGram: 0.985 }
+};
+
 const dryFoodContainer = document.getElementById("dryFoodCalculator");
 const dinnerContainer = document.getElementById("dinnerRecipes");
 
 const feedingData = {};
+const wetFoodOverrides = {};
 
+/* Display the dry food calculator for each cat */
 function displayDryFoodCalculator() {
     dryFoodContainer.replaceChildren();
+    dinnerContainer.replaceChildren();
 
     cats.forEach(cat => {
        if (!feedingData[cat.id]) {
@@ -126,25 +160,26 @@ function displayDryFoodCalculator() {
           checkbox.type = "checkbox";
           checkbox.checked = feeding.completed;
 
+          /* Update feeding grams and recalculate when input changes */
           gramsInput.addEventListener("input", () => {
             feeding.grams = Math.max(0, Number(gramsInput.value) || 0);
             calculate();
           });
 
-          // complete a feeding button
+          /* Complete a feeding button */
           checkbox.addEventListener("change", () => {
             feeding.completed = checkbox.checked;
             calculate();
           });
           
-          // remove a feeding button
+          /* Remove a feeding button */
           removeButton.addEventListener("click", () => {
             feedingData[cat.id] = feedingData[cat.id].filter(
             item => item.id !== feeding.id
           );
 
-    displayDryFoodCalculator();
-});
+          displayDryFoodCalculator();
+    });
           
           row.append(label, gramsInput, unit, removeButton, checkbox);
           section.appendChild(row);
@@ -175,19 +210,8 @@ function displayDryFoodCalculator() {
 section.appendChild(addButton);
 
         const result = document.createElement("p");
-
         const dinnerResult = document.createElement("p");
-        const proteinOverrideLabel = document.createElement("label");
-        proteinOverrideLabel.textContent = "Different wet food protein:";
-        const proteinOverrideSelect = document.createElement("select");
-
-        proteinOverrideSelect.innerHTML = `
-            <option value="chicken">Chicken</option>
-            <option value="turkey">Turkey</option>
-        `;
-
-        proteinOverrideLabel.appendChild(proteinOverrideSelect);
-
+       
         function calculate() {
             const totalDryGrams = feedingData[cat.id].reduce((total, feeding) => {
               return total + (feeding.completed ? feeding.grams : 0);
@@ -201,34 +225,127 @@ section.appendChild(addButton);
                 `Dry food calories: ${dryCalories.toFixed(1)} kcal | ` +
                 `Remaining calories for wet food: ${remainingCalories.toFixed(1)} kcal`;
 
-                const selectedProtein = proteinSelect.value || proteinOverrideSelect.value;
-                const selectedRecipe = recipes[selectedProtein][cat.name];
+                const override = wetFoodOverrides[cat.id];
 
-                if (selectedRecipe) {
-                    const wetFoodCalories = remainingCalories;
-                    const wetFoodGrams = (wetFoodCalories / selectedRecipe.calories) * selectedRecipe.ingredients.reduce((sum, ingredient) => sum + ingredient.grams, 0);
-                    dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
+                const selectedProtein = override
+                    ? override.flavor
+                    : proteinSelect.value;
+
+                const selectWetFoodType = override
+                    ? override.type
+                    : wetFoodSelect.value;
+
+                if (selectWetFoodType === "canned") {
+                  const selectedCanned = cannedRecipes[selectedProtein];
+                  const wetFoodGrams = remainingCalories / selectedCanned.caloriesPerGram;
+                  dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
+                } else if (selectWetFoodType === "homemade") { 
+                  const selectedRecipe = recipes[selectedProtein][cat.name];
+                  const recipeGrams = selectedRecipe.ingredients.reduce(
+                    (sum, ingredient) => sum + ingredient.grams,
+                    0
+                  );
+                  const wetFoodGrams = (remainingCalories / selectedRecipe.calories) * recipeGrams;
+                  dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
                 } else {
                     dinnerResult.textContent = "No recipe available for this protein.";
                 }
         }
 
-        proteinSelect.addEventListener("change", calculate);
-
         section.prepend(heading);
-        section.append(result, proteinOverrideLabel, dinnerResult);
+        section.append(result);
         dryFoodContainer.appendChild(section);
+
+        const wetFoodSection = document.createElement("div");
+        wetFoodSection.className = "cat-feeding";
+
+        const overrideLabel = document.createElement("label");
+        overrideLabel.textContent = "Wet food selection";
+
+        const overrideSelect = document.createElement("select");
+
+        overrideSelect.innerHTML = `
+        <option value="shared">Use shared selection</option>
+        <option value="homemade">Homemade (Balance.IT)</option>
+        <option value="canned">Canned</option>
+`;
+
+        overrideSelect.value = wetFoodOverrides[cat.id]?.type || "shared";
+
+        const flavorLabel = document.createElement("label");
+        flavorLabel.textContent = " Protein/flavor: ";
+
+        const flavorSelect = document.createElement("select");
+        function updateOverrideFlavors() {
+          const overrideType = overrideSelect.value;
+
+          flavorSelect.replaceChildren();
+
+          if (overrideType === "shared") {
+              flavorLabel.hidden = true;
+              flavorSelect.hidden = true;
+              return;
+          }
+
+          flavorLabel.hidden = false;
+          flavorSelect.hidden = false;
+
+          const flavors = overrideType === "canned"
+              ? ["chicken", "salmon", "turkey"]
+              : ["chicken", "turkey"];
+
+          flavors.forEach(flavor => {
+              const option = document.createElement("option");
+              option.value = flavor;
+              option.textContent =
+                  flavor.charAt(0).toUpperCase() + flavor.slice(1);
+
+              flavorSelect.appendChild(option);
+          });
+
+          const savedFlavor = wetFoodOverrides[cat.id]?.flavor;
+
+          if (savedFlavor && flavors.includes(savedFlavor)) {
+              flavorSelect.value = savedFlavor;
+          }
+      }
+
+      overrideSelect.addEventListener("change", () => {
+          if (overrideSelect.value === "shared") {
+              delete wetFoodOverrides[cat.id];
+          } else {
+              wetFoodOverrides[cat.id] = {
+                  type: overrideSelect.value,
+                  flavor: "chicken"
+              };
+          }
+
+          updateOverrideFlavors();
+          calculate();
+      });
+
+      flavorSelect.addEventListener("change", () => {
+          wetFoodOverrides[cat.id].flavor = flavorSelect.value;
+          calculate();
+      });
+
+      updateOverrideFlavors();
+
+        const wetFoodHeading = document.createElement("h3");
+
+        
+        wetFoodHeading.textContent = cat.name;
+        overrideLabel.appendChild(overrideSelect);
+        flavorLabel.appendChild(flavorSelect);
+
+        wetFoodSection.append(wetFoodHeading, overrideLabel, flavorLabel, dinnerResult);
+        dinnerContainer.appendChild(wetFoodSection);
         
         calculate();
     });
 }
 
+proteinSelect.addEventListener("change", displayDryFoodCalculator);
+wetFoodSelect.addEventListener("change", displayDryFoodCalculator);
+
 displayDryFoodCalculator();
-
-const haloRecipes = {
-    chicken: { caloriesPerGram: 1.025 },
-    salmon: { caloriesPerGram: 1.047 },
-    turkey: { caloriesPerGram: 0.985 }
-};
-
-const haloGrams = remainingCalories / haloRecipes[selectedFlavor].caloriesPerGram;
