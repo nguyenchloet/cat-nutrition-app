@@ -25,6 +25,11 @@ navButtons.forEach(button => {
 const proteinSelect = document.getElementById("protein");
 const recipeContainer = document.getElementById("recipes");
 
+const cats = [
+    { id: "annie", name: "Annie" },
+    { id: "gus", name: "Gus" }
+];
+
 const recipes = {
   chicken: {
     Annie: {
@@ -111,3 +116,62 @@ function displayRecipes() {
 
 proteinSelect.addEventListener("change", displayRecipes);
 displayRecipes(); // Display recipes for the default selected protein on page load
+
+
+const dryFoodCaloriesPerGram = 3.674;
+const dryFoodContainer = document.getElementById("dryFoodCalculator");
+
+function displayDryFoodCalculator() {
+    dryFoodContainer.replaceChildren();
+
+    cats.forEach(cat => {
+        const section = document.createElement("div");
+        section.className = "cat-feeding";
+
+        const heading = document.createElement("h3");
+        heading.textContent = cat.name;
+
+        const feeding1 = document.createElement("input");
+        feeding1.type = "number";
+        feeding1.min = "0";
+        feeding1.step = "0.1";
+        feeding1.value = "10";
+
+        const feeding2 = document.createElement("input");
+        feeding2.type = "number";
+        feeding2.min = "0";
+        feeding2.step = "0.1";
+        feeding2.value = "10";
+
+        const label1 = document.createElement("label");
+        label1.textContent = "Feeding 1 (grams)";
+
+        const label2 = document.createElement("label");
+        label2.textContent = "Feeding 2 (estimated grams)";
+
+        const result = document.createElement("p");
+
+        function calculate() {
+            const grams1 = Number(feeding1.value);
+            const grams2 = Number(feeding2.value);
+
+            const calories = (grams1 + grams2) * dryFoodCaloriesPerGram;
+
+            result.textContent =
+                `Estimated dry food: ${calories.toFixed(1)} kcal`;
+        }
+
+        feeding1.addEventListener("input", calculate);
+        feeding2.addEventListener("input", calculate);
+
+        label1.appendChild(feeding1);
+        label2.appendChild(feeding2);
+
+        section.append(heading, label1, label2, result);
+        dryFoodContainer.appendChild(section);
+
+        calculate();
+    });
+}
+
+displayDryFoodCalculator();
