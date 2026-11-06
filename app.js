@@ -23,7 +23,6 @@ navButtons.forEach(button => {
 });
 
 const proteinSelect = document.getElementById("protein");
-const recipeContainer = document.getElementById("recipes");
 
 const cats = [
     { id: "annie", name: "Annie", dailyCalories: 235.9 },
@@ -79,55 +78,21 @@ const recipes = {
   }
 };
 
-function displayRecipes() {
-  const selectedProtein = proteinSelect.value;
-  const selectedRecipes = recipes[selectedProtein];
-
-  recipeContainer.replaceChildren(); // clear the previous recipes
-
-  // if no recipes are found for the selected protein, display a message
-  if (!selectedRecipes) {
-    recipeContainer.textContent = "No verified Balance IT recipe saved for the selected protein.";
-    return;
-  }
-
-  for (const [cat, recipe] of Object.entries(selectedRecipes)) {
-    const card = document.createElement("div");
-    card.className = "recipe-card";
-
-    const heading = document.createElement("h3");
-    heading.textContent = cat;
-
-    const details = document.createElement("p");
-    details.textContent = `Balance IT Recipe #${recipe.id} | ${recipe.calories} kcal`;
-
-    const ingredientsList = document.createElement("ul");
-
-    for (const ingredient of recipe.ingredients) {
-      const item = document.createElement("li");
-      item.textContent = `${ingredient.name}: ${ingredient.grams} grams`;
-      ingredientsList.appendChild(item);
-    }
-    
-    card.append(heading, details, ingredientsList);
-    recipeContainer.appendChild(card);
-  }
-}
-
-proteinSelect.addEventListener("change", displayRecipes);
-displayRecipes(); // Display recipes for the default selected protein on page load
-
-
 const dryFoodCaloriesPerGram = 3.674;
 const dryFoodContainer = document.getElementById("dryFoodCalculator");
-const feedingAmounts = {};
+const dinnerContainer = document.getElementById("dinnerRecipes");
+
+const feedingData = {};
 
 function displayDryFoodCalculator() {
     dryFoodContainer.replaceChildren();
 
     cats.forEach(cat => {
-        if (!feedingAmounts[cat.id]) {
-            feedingAmounts[cat.id] = { feeding1: 10, feeding2: 10 };
+       if (!feedingData[cat.id]) {
+            feedingData[cat.id] = [
+              { id: 1, grams: 10, completed: false },
+              { id: 2, grams: 10, completed: false }
+          ];
         }
 
         const section = document.createElement("div");
@@ -136,65 +101,134 @@ function displayDryFoodCalculator() {
         const heading = document.createElement("h3");
         heading.textContent = cat.name;
 
-        const feeding1 = document.createElement("input");
-        feeding1.type = "number";
-        feeding1.min = "0";
-        feeding1.step = "0.1";
-        feeding1.value = feedingAmounts[cat.id].feeding1;
+        feedingData[cat.id].forEach(feeding => {
+          const row = document.createElement("div");
+          row.className = "feeding-row";
 
-        const feeding2 = document.createElement("input");
-        feeding2.type = "number";
-        feeding2.min = "0";
-        feeding2.step = "0.1";
-        feeding2.value = feedingAmounts[cat.id].feeding2;
+          const label = document.createElement("span");
+          label.textContent = `Dry Food ${feeding.id}`;
 
-        const label1 = document.createElement("label");
-        label1.textContent = "Feeding 1 (grams)";
+          const gramsInput = document.createElement("input");
+          gramsInput.type = "number";
+          gramsInput.min = "0";
+          gramsInput.step = "0.1";
+          gramsInput.value = feeding.grams;
 
-        const label2 = document.createElement("label");
-        label2.textContent = "Feeding 2 (estimated grams)";
+          const unit = document.createElement("span");
+          unit.textContent = "g";
+
+          const removeButton = document.createElement("button");
+          removeButton.type = "button";
+          removeButton.textContent = "×";
+          removeButton.className = "remove-feeding";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = feeding.completed;
+
+          gramsInput.addEventListener("input", () => {
+            feeding.grams = Math.max(0, Number(gramsInput.value) || 0);
+            calculate();
+          });
+
+          // complete a feeding button
+          checkbox.addEventListener("change", () => {
+            feeding.completed = checkbox.checked;
+            calculate();
+          });
+          
+          // remove a feeding button
+          removeButton.addEventListener("click", () => {
+            feedingData[cat.id] = feedingData[cat.id].filter(
+            item => item.id !== feeding.id
+          );
+
+    displayDryFoodCalculator();
+});
+          
+          row.append(label, gramsInput, unit, removeButton, checkbox);
+          section.appendChild(row);
+    });
+
+    // Allow the user to add a new feeding
+    const addButton = document.createElement("button");
+      addButton.type = "button";
+      addButton.textContent = "+ Add dry food feeding";
+
+      addButton.addEventListener("click", () => {
+          const feedings = feedingData[cat.id];
+
+          const nextId = Math.max(
+              0,
+              ...feedings.map(feeding => feeding.id)
+          ) + 1;
+
+          feedings.push({
+              id: nextId,
+              grams: 0,
+              completed: false
+          });
+
+          displayDryFoodCalculator();
+      });
+
+section.appendChild(addButton);
 
         const result = document.createElement("p");
 
         const dinnerResult = document.createElement("p");
+        const proteinOverrideLabel = document.createElement("label");
+        proteinOverrideLabel.textContent = "Different wet food protein:";
+        const proteinOverrideSelect = document.createElement("select");
+
+        proteinOverrideSelect.innerHTML = `
+            <option value="chicken">Chicken</option>
+            <option value="turkey">Turkey</option>
+        `;
+
+        proteinOverrideLabel.appendChild(proteinOverrideSelect);
 
         function calculate() {
-            const grams1 = Number(feeding1.value);
-            const grams2 = Number(feeding2.value);
-            feedingAmounts[cat.id].feeding1 = grams1;
-            feedingAmounts[cat.id].feeding2 = grams2;
+            const totalDryGrams = feedingData[cat.id].reduce((total, feeding) => {
+              return total + (feeding.completed ? feeding.grams : 0);
+            }, 0);
 
-            const dryCalories = (grams1 + grams2) * dryFoodCaloriesPerGram;
-
+            const dryCalories = totalDryGrams * dryFoodCaloriesPerGram;
             const remainingCalories = Math.max(0, cat.dailyCalories - dryCalories);
 
             result.textContent =
                 `Daily target: ${cat.dailyCalories.toFixed(1)} kcal | ` + 
                 `Dry food calories: ${dryCalories.toFixed(1)} kcal | ` +
-                `Remaining calories for dinner: ${remainingCalories.toFixed(1)} kcal`;
+                `Remaining calories for wet food: ${remainingCalories.toFixed(1)} kcal`;
 
-                const selectedProtein = proteinSelect.value;
+                const selectedProtein = proteinSelect.value || proteinOverrideSelect.value;
                 const selectedRecipe = recipes[selectedProtein][cat.name];
+
                 if (selectedRecipe) {
-                    const dinnerCalories = remainingCalories;
-                    const dinnerGrams = (dinnerCalories / selectedRecipe.calories) * selectedRecipe.ingredients.reduce((sum, ingredient) => sum + ingredient.grams, 0);
-                    dinnerResult.textContent = `Dinner portion: ${dinnerGrams.toFixed(1)} grams of ${selectedProtein}`;
+                    const wetFoodCalories = remainingCalories;
+                    const wetFoodGrams = (wetFoodCalories / selectedRecipe.calories) * selectedRecipe.ingredients.reduce((sum, ingredient) => sum + ingredient.grams, 0);
+                    dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
                 } else {
                     dinnerResult.textContent = "No recipe available for this protein.";
                 }
         }
 
-        feeding1.addEventListener("input", calculate);
-        feeding2.addEventListener("input", calculate);
+        proteinSelect.addEventListener("change", calculate);
 
-        label1.appendChild(feeding1);
-        label2.appendChild(feeding2);
-
-        section.append(heading, label1, label2, result, dinnerResult);
+        section.prepend(heading);
+        section.append(result, proteinOverrideLabel, dinnerResult);
         dryFoodContainer.appendChild(section);
-
+        
         calculate();
     });
 }
 
 displayDryFoodCalculator();
+
+const haloRecipes = {
+    chicken: { caloriesPerGram: 1.025 },
+    salmon: { caloriesPerGram: 1.047 },
+    turkey: { caloriesPerGram: 0.985 }
+};
+
+const haloGrams = remainingCalories / haloRecipes[selectedFlavor].caloriesPerGram;
