@@ -28,8 +28,8 @@ const recipeContainer = document.getElementById("recipes");
 const recipes = {
   chicken: {
     Annie: {
-       id: "14940223",
-            calories: 242.1,
+       id: "14940796",
+            calories: 235.9,
             ingredients: [
                 { name: "Chicken breast, skinless, boneless, cooked, roasted", grams: 99 },
                 { name: "Canola oil", grams: 6 },
@@ -38,14 +38,38 @@ const recipes = {
             ]
     },
     Gus: {
-       id: "14940480",
-            calories: 260.5,
+       id: "14940974",
+            calories: 262.1,
             ingredients: [
-                { name: "Chicken breast, skinless, boneless, cooked, roasted", grams: 110 },
-                { name: "Canola oil", grams: 7 },
-                { name: "Nordic Naturals Omega-3 Pet Liquid", grams: 2.3 },
-                { name: "Balance IT Carnivore Blend", grams: 3.13 }
+                { name: "Chicken breast, skinless, boneless, cooked, roasted", grams: 92 },
+                { name: "Canola oil", grams: 5 },
+                { name: "Nordic Naturals Omega-3 Pet Liquid", grams: 1.66 },
+                { name: "White long-grain rice, cooked", grams: 40 },
+                { name: "Balance IT Carnivore Blend", grams: 3.14 }
             ]
+    }
+  },
+  turkey: {
+    Annie: {
+      id: "14941082",
+      calories: 241.6,
+      ingredients: [
+        { name: "Turkey breast, from whole bird, non-enhanced, meat only, cooked, roasted", grams: 117 },
+        { name: "Corn oil, all-purpose salad or cooking", grams: 5 },
+        { name: "Nordic Naturals Omega-3 Pet Liquid", grams: 3.4 },
+        { name: "Balance IT Carnivore Blend", grams: 3.2 }
+      ]
+    },
+    Gus: {
+      id: "14941056",
+      calories: 261.3,
+      ingredients: [
+        { name: "Turkey breast, from whole bird, non-enhanced, meat only, cooked, roasted", grams: 128 },
+        { name: "Nordic Naturals Omega-3 Pet Liquid", grams: 1.56 },
+        { name: "Canola oil", grams: 4 },
+        { name: "White long-grain rice, cooked", grams: 20 },
+        { name: "Balance IT Carnivore Blend", grams: 3.6 }
+      ]
     }
   }
 };
