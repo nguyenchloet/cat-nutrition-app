@@ -22,6 +22,19 @@ navButtons.forEach(button => {
   });
 });
 
+const feedingsHeading = document.querySelector("#tonight h2");
+
+const today = new Date();
+
+const formattedDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+});
+
+feedingsHeading.textContent = `Today's Feedings — ${formattedDate}`;
+
 const proteinSelect = document.getElementById("protein");
 
 const wetFoodSelect = document.getElementById("wetFoodType");
