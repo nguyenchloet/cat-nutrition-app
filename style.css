@@ -154,8 +154,8 @@ main {
 
 #wetFoodType,
 #protein,
-.cat-feeding select,
-.cat-feeding input[type="number"] {
+.pet-feeding select,
+.pet-feeding input[type="number"] {
     min-height: 40px;
     border: 1px solid #d5ded6;
     border-radius: 8px;
@@ -169,12 +169,12 @@ main {
     padding: 8px 10px;
 }
 
-.cat-feeding {
+.pet-feeding {
     padding: 14px 0;
     border-bottom: 1px solid #e7e7e5;
 }
 
-.cat-feeding label {
+.pet-feeding label {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -182,16 +182,16 @@ main {
     margin-bottom: 10px;
 }
 
-.cat-feeding input[type="number"] {
+.pet-feeding input[type="number"] {
     width: 65px;
     padding: 6px 8px;
 }
 
-.cat-feeding select {
+.pet-feeding select {
     padding: 6px 8px;
 }
 
-.cat-feeding h3 {
+.pet-feeding h3 {
     margin: 0 0 10px;
     font-size: 16px;
     line-height: 1.35;
@@ -248,7 +248,7 @@ main {
 }
 
 .feeding-row input[type="checkbox"],
-#dinnerRecipes .cat-feeding input[type="checkbox"] {
+#dinnerRecipes .pet-feeding input[type="checkbox"] {
     appearance: none;
     display: grid;
     place-items: center;
@@ -264,14 +264,14 @@ main {
 }
 
 .feeding-row input[type="checkbox"]:checked,
-#dinnerRecipes .cat-feeding input[type="checkbox"]:checked {
+#dinnerRecipes .pet-feeding input[type="checkbox"]:checked {
     background-color: #345c46;
     border-color: #345c46;
     box-shadow: 0 1px 3px rgba(52, 92, 70, 0.2);
 }
 
 .feeding-row input[type="checkbox"]:checked::after,
-#dinnerRecipes .cat-feeding input[type="checkbox"]:checked::after {
+#dinnerRecipes .pet-feeding input[type="checkbox"]:checked::after {
     content: "✓";
     color: white;
     font-size: 17px;
@@ -287,7 +287,7 @@ main {
     color: #46534a;
 }
 
-.cat-feeding > button {
+.pet-feeding > button {
     margin-top: 6px;
     padding: 6px 12px;
     cursor: pointer;
@@ -296,7 +296,7 @@ main {
     font-weight: 500;
 }
 
-.cat-feeding > button:hover {
+.pet-feeding > button:hover {
     background-color: #e4e6e3;
 }
 
@@ -327,7 +327,7 @@ main {
     padding: 4px 7px;
 }
 
-#dryFoodCalculator .cat-feeding {
+#dryFoodCalculator .pet-feeding {
     min-width: 0;
     padding: 12px;
     border: 1px solid #e7e7e5;
@@ -335,7 +335,7 @@ main {
     background: #fafaf9;
 }
 
-#dryFoodCalculator .cat-feeding > p {
+#dryFoodCalculator .pet-feeding > p {
     margin: 10px 0 2px;
     padding: 10px 12px;
     border-radius: 10px;
@@ -346,7 +346,7 @@ main {
     line-height: 1.6;
 }
 
-#dinnerRecipes .cat-feeding > label {
+#dinnerRecipes .pet-feeding > label {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -356,15 +356,15 @@ main {
     font-size: 14px;
 }
 
-#dinnerRecipes .cat-feeding > label:has(select) {
+#dinnerRecipes .pet-feeding > label:has(select) {
     font-weight: 550;
 }
 
-#dinnerRecipes .cat-feeding > label select {
+#dinnerRecipes .pet-feeding > label select {
     min-width: 150px;
 }
 
-#dinnerRecipes .cat-feeding > p {
+#dinnerRecipes .pet-feeding > p {
     margin: 12px 0;
     color: #46534a;
     font-weight: 600;
@@ -398,7 +398,7 @@ main {
     white-space: nowrap;
 }
 
-#dinnerRecipes .cat-feeding > label:has(input[type="checkbox"]) {
+#dinnerRecipes .pet-feeding > label:has(input[type="checkbox"]) {
     display: flex;
     min-height: 44px;
     margin: 10px 0 2px;
@@ -410,7 +410,7 @@ main {
     transition: background-color 140ms ease, color 140ms ease;
 }
 
-#dinnerRecipes .cat-feeding > label:has(input[type="checkbox"]:checked) {
+#dinnerRecipes .pet-feeding > label:has(input[type="checkbox"]:checked) {
     background-color: #eef1ed;
     color: #46534a;
 }

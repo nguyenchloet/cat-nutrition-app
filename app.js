@@ -59,10 +59,10 @@ wetFoodSelect.addEventListener("change", updateWetFoodFlavors);
 
 updateWetFoodFlavors();
 
-/* Data for cats and their recipes 20261106 */
-const cats = [
-    { id: "annie", name: "Annie", dailyCalories: 235.9 },
-    { id: "gus", name: "Gus", dailyCalories: 262.1 }
+/* Data for pets and their recipes 20261106 */
+const pets = [
+    { id: "annie", name: "Annie", species: "cat", dailyCalories: 235.9 },
+    { id: "gus", name: "Gus", species: "cat", dailyCalories: 262.1 }
 ];
 
 const recipes = {
@@ -130,26 +130,26 @@ const feedingData = {};
 const wetFoodOverrides = {};
 const wetFoodCompleted = {};
 
-/* Display the dry food calculator for each cat */
+/* Display the dry food calculator for each pet */
 function displayDryFoodCalculator() {
     dryFoodContainer.replaceChildren();
     dinnerContainer.replaceChildren();
 
-    cats.forEach(cat => {
-       if (!feedingData[cat.id]) {
-            feedingData[cat.id] = [
+    pets.forEach(pet => {
+       if (!feedingData[pet.id]) {
+            feedingData[pet.id] = [
               { id: 1, grams: 10, completed: false },
               { id: 2, grams: 10, completed: false }
           ];
         }
 
         const section = document.createElement("div");
-        section.className = "cat-feeding";
+        section.className = "pet-feeding";
 
         const heading = document.createElement("h3");
-        heading.textContent = cat.name;
+        heading.textContent = pet.name;
 
-        feedingData[cat.id].forEach(feeding => {
+        feedingData[pet.id].forEach(feeding => {
           const row = document.createElement("div");
           row.className = "feeding-row";
 
@@ -188,7 +188,7 @@ function displayDryFoodCalculator() {
           
           /* Remove a feeding button */
           removeButton.addEventListener("click", () => {
-            feedingData[cat.id] = feedingData[cat.id].filter(
+            feedingData[pet.id] = feedingData[pet.id].filter(
             item => item.id !== feeding.id
           );
 
@@ -205,7 +205,7 @@ function displayDryFoodCalculator() {
       addButton.textContent = "+ Add dry food feeding";
 
       addButton.addEventListener("click", () => {
-          const feedings = feedingData[cat.id];
+          const feedings = feedingData[pet.id];
 
           const nextId = Math.max(
               0,
@@ -231,16 +231,16 @@ function displayDryFoodCalculator() {
         dinnerResult.className = 'calculated-total';
        
         function calculate() {
-            const totalDryGrams = feedingData[cat.id].reduce((total, feeding) => {
+            const totalDryGrams = feedingData[pet.id].reduce((total, feeding) => {
               return total + (feeding.completed ? feeding.grams : 0);
             }, 0);
 
             const dryCalories = totalDryGrams * dryFoodCaloriesPerGram;
-            const remainingCalories = Math.max(0, cat.dailyCalories - dryCalories);
+            const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
 
             const progress = Math.min(
                 100,
-                (dryCalories / cat.dailyCalories) * 100
+                (dryCalories / pet.dailyCalories) * 100
                 );
 
                 result.innerHTML = `
@@ -260,14 +260,14 @@ function displayDryFoodCalculator() {
 
                          <div class="calorie-stat">
                             <span>Daily Target</span>
-                            <strong>${cat.dailyCalories.toFixed(1)}</strong>
+                            <strong>${pet.dailyCalories.toFixed(1)}</strong>
                             <small>kcal</small>
                         </div>
                     </div>
 
                     <div class="calorie-progress"
                         role="progressbar"
-                        aria-label="${cat.name} dry food calorie progress"
+                        aria-label="${pet.name} dry food calorie progress"
                         aria-valuemin="0"
                         aria-valuemax="100"
                         aria-valuenow="${progress.toFixed(0)}">
@@ -276,7 +276,7 @@ function displayDryFoodCalculator() {
                     </div>
                     
                 `;
-                const override = wetFoodOverrides[cat.id];
+                const override = wetFoodOverrides[pet.id];
 
                 const selectedProtein = override
                     ? override.flavor
@@ -300,7 +300,7 @@ function displayDryFoodCalculator() {
 
                   dinnerResult.append(totalLabel, totalAmount);
                 } else if (selectWetFoodType === "homemade") { 
-                  const selectedRecipe = recipes[selectedProtein][cat.name];
+                  const selectedRecipe = recipes[selectedProtein][pet.name];
                  
                   const scaleFactor = remainingCalories / selectedRecipe.calories;
 
@@ -344,7 +344,7 @@ function displayDryFoodCalculator() {
         dryFoodContainer.appendChild(section);
 
         const wetFoodSection = document.createElement("div");
-        wetFoodSection.className = "cat-feeding";
+        wetFoodSection.className = "pet-feeding";
 
         const overrideLabel = document.createElement("label");
         overrideLabel.textContent = "Wet food selection";
@@ -357,7 +357,7 @@ function displayDryFoodCalculator() {
         <option value="canned">Canned</option>
 `;
 
-        overrideSelect.value = wetFoodOverrides[cat.id]?.type || "shared";
+        overrideSelect.value = wetFoodOverrides[pet.id]?.type || "shared";
 
         const flavorLabel = document.createElement("label");
         flavorLabel.textContent = " Protein/flavor: ";
@@ -390,7 +390,7 @@ function displayDryFoodCalculator() {
               flavorSelect.appendChild(option);
           });
 
-          const savedFlavor = wetFoodOverrides[cat.id]?.flavor;
+          const savedFlavor = wetFoodOverrides[pet.id]?.flavor;
 
           if (savedFlavor && flavors.includes(savedFlavor)) {
               flavorSelect.value = savedFlavor;
@@ -399,9 +399,9 @@ function displayDryFoodCalculator() {
 
       overrideSelect.addEventListener("change", () => {
           if (overrideSelect.value === "shared") {
-              delete wetFoodOverrides[cat.id];
+              delete wetFoodOverrides[pet.id];
           } else {
-              wetFoodOverrides[cat.id] = {
+              wetFoodOverrides[pet.id] = {
                   type: overrideSelect.value,
                   flavor: "chicken"
               };
@@ -412,7 +412,7 @@ function displayDryFoodCalculator() {
       });
 
       flavorSelect.addEventListener("change", () => {
-          wetFoodOverrides[cat.id].flavor = flavorSelect.value;
+          wetFoodOverrides[pet.id].flavor = flavorSelect.value;
           calculate();
       });
 
@@ -421,7 +421,7 @@ function displayDryFoodCalculator() {
         const wetFoodHeading = document.createElement("h3");
 
         
-        wetFoodHeading.textContent = cat.name;
+        wetFoodHeading.textContent = pet.name;
         overrideLabel.appendChild(overrideSelect);
         flavorLabel.appendChild(flavorSelect);
 
@@ -429,10 +429,10 @@ function displayDryFoodCalculator() {
 
         const wetFoodCheckbox = document.createElement("input");
         wetFoodCheckbox.type = "checkbox";
-        wetFoodCheckbox.checked = wetFoodCompleted[cat.id] || false;
+        wetFoodCheckbox.checked = wetFoodCompleted[pet.id] || false;
 
         wetFoodCheckbox.addEventListener("change", () => {
-            wetFoodCompleted[cat.id] = wetFoodCheckbox.checked;
+            wetFoodCompleted[pet.id] = wetFoodCheckbox.checked;
         });
 
         wetFoodCheckboxLabel.append(
@@ -450,7 +450,7 @@ function displayDryFoodCalculator() {
 
         wetFoodCheckbox.setAttribute(
             "aria-label",
-            `Mark ${cat.name}'s wet food as eaten`
+            `Mark ${pet.name}'s wet food as eaten`
         );
 
         wetFoodCheckboxLabel.replaceChildren(wetFoodCheckbox);
@@ -471,7 +471,7 @@ function displayDryFoodCalculator() {
 proteinSelect.addEventListener("change", displayDryFoodCalculator);
 wetFoodSelect.addEventListener("change", displayDryFoodCalculator);
 
-/* Save the date, each cat's calorie target, dry food feedings and completion status, dry food calories, and selected wet food type and flavor */
+/* Save the date, each pet's calorie target, dry food feedings and completion status, dry food calories, and selected wet food type and flavor */
 const saveFeedingsButton = document.getElementById("saveFeedings");
 
 saveFeedingsButton.addEventListener("click", () => {
@@ -479,8 +479,8 @@ saveFeedingsButton.addEventListener("click", () => {
 
     const dailyRecord = {
         date: today,
-        cats: cats.map(cat => {
-            const dryFeedings = feedingData[cat.id].map(feeding => ({
+        pets: pets.map(pet => {
+            const dryFeedings = feedingData[pet.id].map(feeding => ({
                 id: feeding.id,
                 grams: feeding.grams,
                 completed: feeding.completed
@@ -494,17 +494,17 @@ saveFeedingsButton.addEventListener("click", () => {
                 0
             );
 
-            const override = wetFoodOverrides[cat.id];
+            const override = wetFoodOverrides[pet.id];
 
             return {
-                id: cat.id,
-                name: cat.name,
-                dailyCalories: cat.dailyCalories,
+                id: pet.id,
+                name: pet.name,
+                dailyCalories: pet.dailyCalories,
                 dryFeedings,
                 dryCalories,
                 wetFoodType: override?.type || wetFoodSelect.value,
                 wetFoodFlavor: override?.flavor || proteinSelect.value,
-                wetFoodCompleted: wetFoodCompleted[cat.id] || false
+                wetFoodCompleted: wetFoodCompleted[pet.id] || false
             };
         })
     };
@@ -539,11 +539,13 @@ function loadTodaysFeedings() {
 
     if (!todayRecord) return;
 
-    todayRecord.cats.forEach(savedCat => {
-        feedingData[savedCat.id] = savedCat.dryFeedings;
+    /* Support both old and new saved data structures */
+    const savedPets = todayRecord.pets || todayRecord.cats || [];
+    savedPets.forEach(savedPet => {
+        feedingData[savedPet.id] = savedPet.dryFeedings;
 
-        wetFoodCompleted[savedCat.id] =
-            savedCat.wetFoodCompleted || false;
+        wetFoodCompleted[savedPet.id] =
+            savedPet.wetFoodCompleted || false;
     });
 }
 
