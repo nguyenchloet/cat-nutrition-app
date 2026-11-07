@@ -572,7 +572,7 @@ saveFeedingsButton.addEventListener("click", () => {
     }
 
     localStorage.setItem("feedingHistory", JSON.stringify(history));
-
+    displayFeedingHistory();
     saveFeedingsButton.textContent = "Feedings Saved";
 });
 
@@ -616,5 +616,141 @@ function loadTodaysFeedings() {
     });
 }
 
+function getFeedingHistory() {
+    const history = JSON.parse(
+        localStorage.getItem("feedingHistory") || "[]"
+    );
+
+    return history.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function displayFeedingHistory() {
+    const container = document.getElementById("feedingHistory");
+    const history = getFeedingHistory();
+
+    container.replaceChildren();
+
+    if (history.length === 0) {
+        const message = document.createElement("p");
+        message.textContent = "No feeding history saved yet.";
+        container.appendChild(message);
+        return;
+    }
+
+    history.forEach(record => {
+        const card = document.createElement("div");
+        card.className = "history-card";
+
+        const heading = document.createElement("h3");
+
+        const date = new Date(`${record.date}T12:00:00`);
+
+        heading.textContent = date.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        });
+
+        card.appendChild(heading);
+
+        const savedPets = record.pets || record.cats || [];
+
+        savedPets.forEach(pet => {
+            const summary = document.createElement("p");
+
+            const historicalDryCalories = pet.dryCalories ??
+                (pet.dryFeedings || []).reduce((total, feeding) => {
+                    if (!feeding.completed) return total;
+
+                    const calories = feeding.calories ??
+                        feeding.grams * (pet.dryFoodCaloriesPerGram ?? 3.674);
+
+                    return total + calories;
+                }, 0);
+
+            const historicalWetCalories = pet.wetFoodCompleted
+                ? (pet.wetFood?.calories ?? 0)
+                : 0;
+
+            const consumedCalories = pet.totalCaloriesConsumed ??
+                (historicalDryCalories + historicalWetCalories);
+
+            summary.textContent =
+                `${pet.name}: ${consumedCalories.toFixed(1)} / ${pet.dailyCalories.toFixed(1)} kcal consumed`;
+
+            const details = document.createElement("details");
+
+            const detailsHeading = document.createElement("summary");
+            detailsHeading.textContent = "View feeding details";
+
+            details.appendChild(detailsHeading);
+
+            const dryHeading = document.createElement("h4");
+            dryHeading.textContent = "Dry Food";
+            details.appendChild(dryHeading);
+
+            (pet.dryFeedings || []).forEach(feeding => {
+                const feedingItem = document.createElement("p");
+
+                const calories = feeding.calories ??
+                    feeding.grams * (pet.dryFoodCaloriesPerGram ?? 3.674);
+
+                feedingItem.textContent =
+                    `Feeding ${feeding.id}: ${feeding.grams} g ` +
+                    `(${calories.toFixed(1)} kcal) — ` +
+                    (feeding.completed ? "Eaten" : "Not eaten");
+
+                details.appendChild(feedingItem);
+            });
+
+            const wetHeading = document.createElement("h4");
+            wetHeading.textContent = "Wet Food";
+            details.appendChild(wetHeading);
+
+            const wetDescription = document.createElement("p");
+
+            if (pet.wetFood) {
+                wetDescription.textContent =
+                    `${pet.wetFood.flavor} (${pet.wetFood.type}) — ` +
+                    `${pet.wetFood.grams.toFixed(1)} g, ` +
+                    `${pet.wetFood.calories.toFixed(1)} kcal — ` +
+                    (pet.wetFoodCompleted ? "Eaten" : "Not eaten");
+            } else {
+                wetDescription.textContent =
+                    "Detailed wet food quantities unavailable for this record.";
+            }
+
+            details.appendChild(wetDescription);
+
+            if (
+                pet.wetFood?.type === "homemade" &&
+                pet.wetFood.ingredients?.length > 0
+            ) {
+                const ingredientsHeading = document.createElement("h5");
+                ingredientsHeading.textContent = "Recipe Ingredients";
+
+                const ingredientsList = document.createElement("ul");
+
+                pet.wetFood.ingredients.forEach(ingredient => {
+                    const listItem = document.createElement("li");
+
+                    listItem.textContent =
+                        `${ingredient.name}: ${ingredient.grams.toFixed(1)} g`;
+
+                    ingredientsList.appendChild(listItem);
+                });
+
+                details.append(ingredientsHeading, ingredientsList);
+            }
+
+            card.append(summary, details);
+        });
+
+        container.appendChild(card);
+    });
+}
+
 loadTodaysFeedings();
 displayDryFoodCalculator();
+displayFeedingHistory();

@@ -561,6 +561,59 @@ main {
     display: none !important;
 }
 
+.history-card {
+    padding: 16px;
+    margin-top: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.history-card h3 {
+    margin-top: 0;
+}
+
+.history-card details {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #f7f7f7;
+    border-radius: 6px;
+}
+
+.history-card summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.history-card details h4 {
+    margin-bottom: 8px;
+}
+
+.history-card details h5 {
+    margin-bottom: 6px;
+}
+
+.history-card details p {
+    margin: 6px 0;
+}
+
+.history-card details ul {
+    padding-left: 20px;
+}
+
+.history-card details li {
+    margin-bottom: 4px;
+}
+
+@media (max-width: 600px) {
+    .history-card {
+        padding: 12px;
+    }
+
+    .history-card details {
+        padding: 10px;
+    }
+}
+
 @media (max-width: 480px) {
     header {
         padding: 20px;
