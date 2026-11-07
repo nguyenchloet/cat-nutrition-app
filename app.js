@@ -116,12 +116,56 @@ const recipes = {
 
 const dryFoodCaloriesPerGram = 3.674;
 
+function calculateDryFoodCalories(feedings) {
+    return feedings.reduce((total, feeding) => {
+        if (!feeding.completed) return total;
+
+        return total + feeding.grams * dryFoodCaloriesPerGram;
+    }, 0);
+}
+
+
 /* Recipes for canned Halo cat food. Add other types later */
 const cannedRecipes = {
     chicken: { caloriesPerGram: 1.025 },
     salmon: { caloriesPerGram: 1.047 },
     turkey: { caloriesPerGram: 0.985 }
 };
+
+function calculateWetFood(pet, remainingCalories, type, flavor) {
+    if (type === "canned") {
+        const canned = cannedRecipes[flavor];
+
+        return {
+            type,
+            flavor,
+            grams: remainingCalories / canned.caloriesPerGram,
+            calories: remainingCalories,
+            ingredients: []
+        };
+    }
+
+    if (type === "homemade") {
+        const recipe = recipes[flavor][pet.name];
+        const scaleFactor = remainingCalories / recipe.calories;
+
+        const ingredients = recipe.ingredients.map(ingredient => ({
+            name: ingredient.name,
+            grams: ingredient.grams * scaleFactor
+        }));
+
+        return {
+            type,
+            flavor,
+            recipeId: recipe.id,
+            grams: ingredients.reduce((sum, ingredient) => sum + ingredient.grams, 0),
+            calories: remainingCalories,
+            ingredients
+        };
+    }
+
+    return null;
+}
 
 const dryFoodContainer = document.getElementById("dryFoodCalculator");
 const dinnerContainer = document.getElementById("dinnerRecipes");
@@ -231,11 +275,8 @@ function displayDryFoodCalculator() {
         dinnerResult.className = 'calculated-total';
        
         function calculate() {
-            const totalDryGrams = feedingData[pet.id].reduce((total, feeding) => {
-              return total + (feeding.completed ? feeding.grams : 0);
-            }, 0);
 
-            const dryCalories = totalDryGrams * dryFoodCaloriesPerGram;
+            const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
             const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
 
             const progress = Math.min(
@@ -277,7 +318,6 @@ function displayDryFoodCalculator() {
                     
                 `;
                 const override = wetFoodOverrides[pet.id];
-
                 const selectedProtein = override
                     ? override.flavor
                     : proteinSelect.value;
@@ -286,56 +326,38 @@ function displayDryFoodCalculator() {
                     ? override.type
                     : wetFoodSelect.value;
 
-                if (selectWetFoodType === "canned") {
-                  recipeIngredients.replaceChildren();
-                  const selectedCanned = cannedRecipes[selectedProtein];
-                  const wetFoodGrams = remainingCalories / selectedCanned.caloriesPerGram;
-                  dinnerResult.replaceChildren();
+                const wetFood = calculateWetFood(
+                    pet,
+                    remainingCalories,
+                    selectWetFoodType,
+                    selectedProtein
+                );
+                    recipeIngredients.replaceChildren();
+                    dinnerResult.replaceChildren();
 
-                  const totalLabel = document.createElement("span");
-                  totalLabel.textContent = "Total meal weight";
+                    if (wetFood) {
+                        wetFood.ingredients.forEach(ingredient => {
+                            const item = document.createElement("li");
 
-                  const totalAmount = document.createElement("span");
-                  totalAmount.textContent = `${wetFoodGrams.toFixed(1)} g`;
+                            const name = document.createElement("span");
+                            name.textContent = ingredient.name;
 
-                  dinnerResult.append(totalLabel, totalAmount);
-                } else if (selectWetFoodType === "homemade") { 
-                  const selectedRecipe = recipes[selectedProtein][pet.name];
-                 
-                  const scaleFactor = remainingCalories / selectedRecipe.calories;
+                            const amount = document.createElement("span");
+                            amount.textContent = `${ingredient.grams.toFixed(2)} g`;
 
-                  recipeIngredients.replaceChildren(); 
-                  
-                  selectedRecipe.ingredients.forEach(ingredient => {
-                    const item = document.createElement("li");
+                            item.append(name, amount);
+                            recipeIngredients.appendChild(item);
+                        });
 
-                    const name = document.createElement("span");
-                    name.textContent = ingredient.name;
+                    const totalLabel = document.createElement("span");
+                    totalLabel.textContent = "Total meal weight";
 
-                    const amount = document.createElement("span");
-                    const adjustedGrams = ingredient.grams * scaleFactor; 
-                    amount.textContent = `${adjustedGrams.toFixed(2)} g`;
+                    const totalAmount = document.createElement("span");
+                    totalAmount.textContent = `${wetFood.grams.toFixed(1)} g`;
 
-                    item.append(name, amount);
-
-                    recipeIngredients.appendChild(item);
-                  });
-                  const recipeGrams = selectedRecipe.ingredients.reduce(
-                    (sum, ingredient) => sum + ingredient.grams,
-                    0
-                  );
-                  const wetFoodGrams = (remainingCalories / selectedRecipe.calories) * recipeGrams;
-                  dinnerResult.replaceChildren();
-
-                  const totalLabel = document.createElement("span");
-                  totalLabel.textContent = "Total meal weight";
-
-                  const totalAmount = document.createElement("span");
-                  totalAmount.textContent = `${wetFoodGrams.toFixed(1)} g`;
-
-                  dinnerResult.append(totalLabel, totalAmount);
+                    dinnerResult.append(totalLabel, totalAmount);
                 } else {
-                    dinnerResult.textContent = "No recipe available for this protein.";
+                    dinnerResult.textContent = "No recipe available.";
                 }
         }
 
@@ -420,7 +442,6 @@ function displayDryFoodCalculator() {
 
         const wetFoodHeading = document.createElement("h3");
 
-        
         wetFoodHeading.textContent = pet.name;
         overrideLabel.appendChild(overrideSelect);
         flavorLabel.appendChild(flavorSelect);
@@ -488,26 +509,50 @@ saveFeedingsButton.addEventListener("click", () => {
                 completed: feeding.completed
             }));
 
-            const dryCalories = dryFeedings.reduce(
-                (total, feeding) =>
-                    total + (feeding.completed
-                        ? feeding.grams * dryFoodCaloriesPerGram
-                        : 0),
-                0
-            );
+            const dryCalories = calculateDryFoodCalories(dryFeedings);
 
             const override = wetFoodOverrides[pet.id];
+
+            const wetFoodType = override?.type || wetFoodSelect.value;
+            const wetFoodFlavor = override?.flavor || proteinSelect.value;
+
+            const remainingCalories = Math.max(
+                0,
+                pet.dailyCalories - dryCalories
+            );
+
+            const wetFood = calculateWetFood(
+                pet,
+                remainingCalories,
+                wetFoodType,
+                wetFoodFlavor
+            );
+
+            const isWetFoodCompleted = wetFoodCompleted[pet.id] || false;
+
+            const totalCaloriesConsumed =
+                dryCalories + (isWetFoodCompleted ? wetFood?.calories || 0 : 0);
 
             return {
                 id: pet.id,
                 name: pet.name,
+                species: pet.species,
                 dailyCalories: pet.dailyCalories,
-                dryFeedings,
+                dryFoodProduct: "Blue Buffalo Wilderness Indoor Chicken",
+                dryFoodCaloriesPerGram,
+                dryFeedings: dryFeedings.map(feeding => ({
+                    ...feeding,
+                    calories: feeding.grams * dryFoodCaloriesPerGram
+                })),
                 dryCalories,
+
                 usesSharedWetFood: !override,
-                wetFoodType: override?.type || wetFoodSelect.value,
-                wetFoodFlavor: override?.flavor || proteinSelect.value,
-                wetFoodCompleted: wetFoodCompleted[pet.id] || false
+                wetFoodType,
+                wetFoodFlavor,
+                wetFood,
+
+                wetFoodCompleted: isWetFoodCompleted,
+                totalCaloriesConsumed
             };
         })
     };
