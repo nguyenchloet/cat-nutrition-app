@@ -279,10 +279,13 @@ function displayDryFoodCalculator() {
             const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
             const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
 
-            const progress = Math.min(
-                100,
-                (dryCalories / pet.dailyCalories) * 100
-                );
+            const consumedWetCalories = wetFoodCompleted[pet.id] ? remainingCalories : 0;
+
+            const totalConsumedCalories = dryCalories + consumedWetCalories;
+
+            const progress = pet.dailyCalories > 0
+            ? Math.min(100, (totalConsumedCalories / pet.dailyCalories) * 100)
+            : 0;
 
                 result.innerHTML = `
                     <div class="calorie-stats">
@@ -294,8 +297,8 @@ function displayDryFoodCalculator() {
                         </div>
 
                         <div class="calorie-stat">
-                            <span>Remaining Calories</span>
-                            <strong>${remainingCalories.toFixed(1)}</strong>
+                            <span>Wet food</span>
+                            <strong>${consumedWetCalories.toFixed(1)}</strong>
                             <small>kcal</small>
                         </div>
 
@@ -308,7 +311,7 @@ function displayDryFoodCalculator() {
 
                     <div class="calorie-progress"
                         role="progressbar"
-                        aria-label="${pet.name} dry food calorie progress"
+                        aria-label="${pet.name} total calorie consumption"
                         aria-valuemin="0"
                         aria-valuemax="100"
                         aria-valuenow="${progress.toFixed(0)}">
@@ -454,6 +457,7 @@ function displayDryFoodCalculator() {
 
         wetFoodCheckbox.addEventListener("change", () => {
             wetFoodCompleted[pet.id] = wetFoodCheckbox.checked;
+            calculate();
         });
 
         wetFoodCheckboxLabel.append(
