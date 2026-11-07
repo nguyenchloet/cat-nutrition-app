@@ -61,8 +61,8 @@ updateWetFoodFlavors();
 
 /* Data for pets and their recipes 20261106 */
 const pets = [
-    { id: "annie", name: "Annie", species: "cat", dailyCalories: 235.9 },
-    { id: "gus", name: "Gus", species: "cat", dailyCalories: 262.1 }
+    { id: "annie", name: "Annie", species: "cat", birthdate: "2017-12-24", dailyCalories: 235.9 },
+    { id: "gus", name: "Gus", species: "cat", birthdate: "2023-04-10", dailyCalories: 262.1 }
 ];
 
 const weightForm = document.getElementById("weightForm");
@@ -138,7 +138,7 @@ weightForm.addEventListener("submit", event => {
     weightDateInput.value = today;
 
     displayWeightHistory();
-
+    displayWeightChart();
     alert("Weight record saved successfully.");
 });
 
@@ -237,6 +237,7 @@ function displayWeightChart() {
             .sort((a, b) => a.date.localeCompare(b.date));
 
         return {
+            petId: pet.id,
             label: pet.name,
             data: records.map(record => ({
                 x: record.date,
@@ -271,8 +272,22 @@ function displayWeightChart() {
                 },
                 tooltip: {
                     callbacks: {
-                        label: context =>
-                            `${context.dataset.label}: ${context.parsed.y} lb`
+                        label: context => {
+                            const petId = context.dataset.petId;
+                            const pet = pets.find(p => p.id === petId);
+
+                        const measurementDate = context.raw.x;
+
+                        const age = calculateAgeOnDate(
+                            pet?.birthdate,
+                            measurementDate
+                        );
+
+                        return [
+                            `Weight: ${context.parsed.y} lb`,
+                            `Age: ${age}`
+                        ];
+                        }
                     }
                 }
             },
@@ -297,6 +312,33 @@ function displayWeightChart() {
             }
         }
     });
+}
+
+function calculateAgeOnDate(birthDate, measurementDate) {
+    if (!birthDate || !measurementDate) {
+        return "Age unknown";
+    }
+
+    const [birthYear, birthMonth, birthDay] = birthDate.split("-").map(Number);
+    const [year, month, day] = measurementDate.split("-").map(Number);
+
+    let years = year - birthYear;
+    let months = month - birthMonth;
+
+    if (day < birthDay) {
+        months--;
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    if (years < 0) {
+        return "Age unknown";
+    }
+
+    return `${years} years, ${months} months`;
 }
 
 weightChartFilter.addEventListener("change", displayWeightChart);
