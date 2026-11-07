@@ -479,6 +479,8 @@ saveFeedingsButton.addEventListener("click", () => {
 
     const dailyRecord = {
         date: today,
+        sharedWetFoodType: wetFoodSelect.value,
+        sharedWetFoodFlavor: proteinSelect.value,
         pets: pets.map(pet => {
             const dryFeedings = feedingData[pet.id].map(feeding => ({
                 id: feeding.id,
@@ -502,6 +504,7 @@ saveFeedingsButton.addEventListener("click", () => {
                 dailyCalories: pet.dailyCalories,
                 dryFeedings,
                 dryCalories,
+                usesSharedWetFood: !override,
                 wetFoodType: override?.type || wetFoodSelect.value,
                 wetFoodFlavor: override?.flavor || proteinSelect.value,
                 wetFoodCompleted: wetFoodCompleted[pet.id] || false
@@ -539,6 +542,16 @@ function loadTodaysFeedings() {
 
     if (!todayRecord) return;
 
+    /* Restore the shared wet food selection. */
+    if (todayRecord.sharedWetFoodType) {
+        wetFoodSelect.value = todayRecord.sharedWetFoodType;
+        updateWetFoodFlavors();
+
+        if (todayRecord.sharedWetFoodFlavor) {
+            proteinSelect.value = todayRecord.sharedWetFoodFlavor;
+        }
+    }
+
     /* Support both old and new saved data structures */
     const savedPets = todayRecord.pets || todayRecord.cats || [];
     savedPets.forEach(savedPet => {
@@ -546,6 +559,15 @@ function loadTodaysFeedings() {
 
         wetFoodCompleted[savedPet.id] =
             savedPet.wetFoodCompleted || false;
+
+        if (savedPet.usesSharedWetFood === false) {
+            wetFoodOverrides[savedPet.id] = {
+                type: savedPet.wetFoodType,
+                flavor: savedPet.wetFoodFlavor
+            };
+        } else {
+            delete wetFoodOverrides[savedPet.id];
+        }
     });
 }
 
