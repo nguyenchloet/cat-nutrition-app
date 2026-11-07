@@ -208,9 +208,10 @@ function displayDryFoodCalculator() {
           displayDryFoodCalculator();
       });
 
-section.appendChild(addButton);
+        section.appendChild(addButton);
 
-        const result = document.createElement("p");
+        const result = document.createElement("div");
+        result.className = "calorie-summary";
         const dinnerResult = document.createElement("p");
         const recipeIngredients = document.createElement("ul");
 
@@ -224,11 +225,44 @@ section.appendChild(addButton);
             const dryCalories = totalDryGrams * dryFoodCaloriesPerGram;
             const remainingCalories = Math.max(0, cat.dailyCalories - dryCalories);
 
-            result.textContent =
-                `Daily target: ${cat.dailyCalories.toFixed(1)} kcal | ` + 
-                `Dry food calories: ${dryCalories.toFixed(1)} kcal | ` +
-                `Remaining calories for wet food: ${remainingCalories.toFixed(1)} kcal`;
+            const progress = Math.min(
+                100,
+                (dryCalories / cat.dailyCalories) * 100
+                );
 
+                result.innerHTML = `
+                    <div class="calorie-stats">
+
+                        <div class="calorie-stat">
+                            <span>Dry food</span>
+                            <strong>${dryCalories.toFixed(1)}</strong>
+                            <small>kcal</small>
+                        </div>
+
+                        <div class="calorie-stat">
+                            <span>Remaining Calories</span>
+                            <strong>${remainingCalories.toFixed(1)}</strong>
+                            <small>kcal</small>
+                        </div>
+
+                         <div class="calorie-stat">
+                            <span>Daily Target</span>
+                            <strong>${cat.dailyCalories.toFixed(1)}</strong>
+                            <small>kcal</small>
+                        </div>
+                    </div>
+
+                    <div class="calorie-progress"
+                        role="progressbar"
+                        aria-label="${cat.name} dry food calorie progress"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="${progress.toFixed(0)}">
+                        <div class="calorie-progress-fill"
+                            style="width: ${progress}%"></div>
+                    </div>
+                    
+                `;
                 const override = wetFoodOverrides[cat.id];
 
                 const selectedProtein = override
@@ -243,7 +277,15 @@ section.appendChild(addButton);
                   recipeIngredients.replaceChildren();
                   const selectedCanned = cannedRecipes[selectedProtein];
                   const wetFoodGrams = remainingCalories / selectedCanned.caloriesPerGram;
-                  dinnerResult.textContent = `Total Meal Weight: ${wetFoodGrams.toFixed(1)} g`;
+                  dinnerResult.replaceChildren();
+
+                  const totalLabel = document.createElement("span");
+                  totalLabel.textContent = "Total meal weight";
+
+                  const totalAmount = document.createElement("span");
+                  totalAmount.textContent = `${wetFoodGrams.toFixed(1)} g`;
+
+                  dinnerResult.append(totalLabel, totalAmount);
                 } else if (selectWetFoodType === "homemade") { 
                   const selectedRecipe = recipes[selectedProtein][cat.name];
                  
@@ -270,7 +312,15 @@ section.appendChild(addButton);
                     0
                   );
                   const wetFoodGrams = (remainingCalories / selectedRecipe.calories) * recipeGrams;
-                  dinnerResult.textContent = `Total Meal Weight: ${wetFoodGrams.toFixed(1)} g`;
+                  dinnerResult.replaceChildren();
+
+                  const totalLabel = document.createElement("span");
+                  totalLabel.textContent = "Total meal weight";
+
+                  const totalAmount = document.createElement("span");
+                  totalAmount.textContent = `${wetFoodGrams.toFixed(1)} g`;
+
+                  dinnerResult.append(totalLabel, totalAmount);
                 } else {
                     dinnerResult.textContent = "No recipe available for this protein.";
                 }
@@ -382,12 +432,23 @@ section.appendChild(addButton);
 
         recipeBox.append(recipeIngredients, dinnerResult);
 
+        const recipeRow = document.createElement("div");
+        recipeRow.className = "recipe-row";
+
+        wetFoodCheckbox.setAttribute(
+            "aria-label",
+            `Mark ${cat.name}'s wet food as eaten`
+        );
+
+        wetFoodCheckboxLabel.replaceChildren(wetFoodCheckbox);
+
+        recipeRow.append(recipeBox, wetFoodCheckboxLabel);
+
         wetFoodSection.append(
             wetFoodHeading, 
             overrideLabel, 
             flavorLabel, 
-            recipeBox,
-            wetFoodCheckboxLabel);
+            recipeRow);
         dinnerContainer.appendChild(wetFoodSection);
         
         calculate();

@@ -13,7 +13,7 @@ body {
 header {
   background: #fff;
   padding: 24px max(20px, calc((100% - 600px) / 2 + 20px));
-  border-bottom: 1px solid #e5e9e5;
+  border-bottom: 1px solid #e7e7e5;
 }
 
 h1 {
@@ -25,7 +25,7 @@ h1 {
 
 header p {
   margin: 6px 0 0;
-  color: #647168;
+  color: #666b67;
   font-size: 14px;
 }
 
@@ -40,7 +40,7 @@ main {
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 10px rgba(37, 61, 46, 0.06);
+  box-shadow: 0 2px 10px rgba(37, 37, 37, 0.05);
 }
 
 .card h2 {
@@ -60,15 +60,15 @@ nav {
   justify-content: space-around;
   background: white;
   padding: 12px 8px;
-  border-top: 1px solid #e5e9e5;
-  box-shadow: 0 -4px 16px rgba(37, 61, 46, 0.04);
+  border-top: 1px solid #e7e7e5;
+  box-shadow: 0 -4px 16px rgba(37, 37, 37, 0.04);
 }
 
 button {
   padding: 10px 14px;
   border: 0;
   border-radius: 8px;
-  background: #e8eee8;
+  background: #eeefed;
   font-size: 14px;
   font-weight: 550;
   cursor: pointer;
@@ -76,7 +76,7 @@ button {
 }
 
 button:hover {
-  background-color: #dce8dd;
+  background-color: #e4e6e3;
 }
 
 button:active {
@@ -108,12 +108,12 @@ nav {
 }
 
 nav button.active {
-  background: #345c46;
+  background: #505a53;
   color: white;
 }
 
 nav button.active:hover {
-  background: #294b39;
+  background: #414a44;
 }
 
 main {
@@ -124,7 +124,7 @@ main {
 .recipe-card {
     margin-top: 16px;
     padding: 16px;
-    border: 1px solid #e4e9e4;
+    border: 1px solid #e7e7e5;
     border-radius: 12px;
 }
 
@@ -147,7 +147,7 @@ main {
 .card > label {
     display: block;
     margin-top: 12px;
-    color: #46564b;
+    color: #505651;
     font-size: 14px;
     font-weight: 550;
 }
@@ -171,7 +171,7 @@ main {
 
 .cat-feeding {
     padding: 14px 0;
-    border-bottom: 1px solid #e5e9e5;
+    border-bottom: 1px solid #e7e7e5;
 }
 
 .cat-feeding label {
@@ -201,12 +201,12 @@ main {
     min-height: 48px;
     padding: 6px 8px;
     border-radius: 10px;
-    background-color: #f8faf8;
+    background-color: #f8f8f7;
     transition: background-color 140ms ease;
 }
 
 .feeding-row:hover {
-    background-color: #f1f6f1;
+    background-color: #f1f2f0;
 }
 
 .feeding-row {
@@ -218,7 +218,7 @@ main {
 
 .feeding-row > span:first-child {
     min-width: 75px;
-    color: #46564b;
+    color: #505651;
     font-size: 14px;
     font-weight: 550;
 }
@@ -230,7 +230,7 @@ main {
 }
 
 .feeding-row > span:nth-child(3) {
-    color: #647168;
+    color: #666b67;
     font-size: 14px;
 }
 
@@ -280,32 +280,67 @@ main {
 }
 
 .feeding-row:has(input[type="checkbox"]:checked) {
-    background-color: #edf4ed;
+    background-color: #eef1ed;
 }
 
 .feeding-row:has(input[type="checkbox"]:checked) > span:first-child {
-    color: #345c46;
+    color: #46534a;
 }
 
 .cat-feeding > button {
     margin-top: 6px;
     padding: 6px 12px;
     cursor: pointer;
-    background-color: #e8eee8;
-    color: #345c46;
+    background-color: #eeefed;
+    color: #46534a;
     font-weight: 500;
 }
 
 .cat-feeding > button:hover {
-    background-color: #dce8dd;
+    background-color: #e4e6e3;
+}
+
+#dryFoodCalculator {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#dryFoodCalculator .feeding-row {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+}
+
+#dryFoodCalculator .feeding-row > span:first-child {
+    min-width: 0;
+    flex: 1 1 75px;
+    font-size: 12px;
+}
+
+#dryFoodCalculator .feeding-row input[type="number"] {
+    width: 52px;
+}
+
+#dryFoodCalculator .feeding-row .remove-feeding {
+    margin-left: 0;
+    padding: 4px 7px;
+}
+
+#dryFoodCalculator .cat-feeding {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #e7e7e5;
+    border-radius: 12px;
+    background: #fafaf9;
 }
 
 #dryFoodCalculator .cat-feeding > p {
     margin: 10px 0 2px;
     padding: 10px 12px;
     border-radius: 10px;
-    background-color: #f1f6f1;
-    color: #345c46;
+    background-color: #f1f2f0;
+    color: #46534a;
     font-size: 14px;
     font-weight: 550;
     line-height: 1.6;
@@ -317,7 +352,7 @@ main {
     flex-wrap: wrap;
     gap: 8px;
     margin: 8px 0 12px;
-    color: #46564b;
+    color: #505651;
     font-size: 14px;
 }
 
@@ -331,7 +366,7 @@ main {
 
 #dinnerRecipes .cat-feeding > p {
     margin: 12px 0;
-    color: #345c46;
+    color: #46534a;
     font-weight: 600;
 }
 
@@ -339,8 +374,8 @@ main {
     margin: 8px 0 14px;
     padding: 12px 12px 12px 32px;
     border-radius: 10px;
-    background: #f8faf8;
-    color: #46564b;
+    background: #f8f8f7;
+    color: #505651;
     font-size: 14px;
 }
 
@@ -357,7 +392,7 @@ main {
 
 #dinnerRecipes .recipe-box > ul li span:last-child {
     flex-shrink: 0;
-    color: #345c46;
+    color: #46534a;
     font-weight: 550;
     text-align: right;
     white-space: nowrap;
@@ -369,34 +404,34 @@ main {
     margin: 10px 0 2px;
     padding: 8px 10px;
     border-radius: 10px;
-    background-color: #f8faf8;
-    color: #46564b;
+    background-color: #f8f8f7;
+    color: #505651;
     font-weight: 550;
     transition: background-color 140ms ease, color 140ms ease;
 }
 
 #dinnerRecipes .cat-feeding > label:has(input[type="checkbox"]:checked) {
-    background-color: #edf4ed;
-    color: #345c46;
+    background-color: #eef1ed;
+    color: #46534a;
 }
 
 #saveFeedings {
     width: 100%;
     min-height: 44px;
     margin-top: 14px;
-    background-color: #345c46;
+    background-color: #505a53;
     color: #fff;
 }
 
 #saveFeedings:hover {
-    background-color: #294b39;
+    background-color: #414a44;
 }
 
 .recipe-box {
     margin: 12px 0;
     padding: 14px 16px;
-    background-color: #f8faf8;
-    border: 1px solid #e4e9e4;
+    background-color: #fafaf9;
+    border: 1px solid #e7e7e5;
     border-radius: 12px;
 }
 
@@ -407,13 +442,56 @@ main {
     list-style: none;
 }
 
+#dinnerRecipes .recipe-row {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    margin: 12px 0;
+}
+
+#dinnerRecipes .recipe-row .recipe-box {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+}
+
+#dinnerRecipes .recipe-row > label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    flex: 0 0 44px;
+    margin: 0;
+    padding: 8px;
+    cursor: pointer;
+    border: 1px solid #e4e9e4;
+    border-radius: 10px;
+    background-color: #f8faf8;
+    cursor: pointer;
+}
+
+#dinnerRecipes .recipe-row > label:has(input:checked) {
+    background-color: #edf4ed;
+    border-color: #345c46;
+}
+
 .recipe-box .calculated-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
     border-top: 1px solid #ddd;
     margin: 14px 0 0;
     padding: 12px 0 0;
-    color: #345c46;
+    color: #46534a;
     font-size: 14px;
     font-weight: 600;
+}
+
+.recipe-box .calculated-total span:last-child {
+    flex-shrink: 0;
+    white-space: nowrap;
+    text-align: right;
 }
 
 .calculated-total {
@@ -421,6 +499,62 @@ main {
     padding-top: 10px;
     border-top: 1px solid #ddd;
     color: #555;
+}
+
+.calorie-summary {
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #f1f6f1;
+}
+
+.calorie-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.calorie-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+    min-height: 75px;
+}
+
+.calorie-stat span {
+    color: #647168;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.calorie-stat strong {
+    color: #345c46;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.calorie-stat small {
+    color: #647168;
+    font-size: 10px;
+}
+
+.calorie-progress {
+    height: 8px;
+    margin-top: 12px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #dce8dd;
+}
+
+.calorie-progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: #345c46;
+    transition: width 200ms ease;
 }
 
 [hidden] {
@@ -466,6 +600,12 @@ main {
     nav button {
         padding: 10px 8px;
         font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    #dryFoodCalculator {
+        grid-template-columns: 1fr;
     }
 }
 
