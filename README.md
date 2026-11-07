@@ -4,6 +4,8 @@ A mobile-friendly web application for managing homemade cat food recipes, tracki
 
 Designed for Annie and Gus, with an emphasis on accurate nutritional information and evidence-based pet food safety monitoring.
 
+[App Link](https://nguyenchloet.github.io/cat-nutrition-app/)
+
 ## Planned Features
 
 - **Daily Recipes:** View Balance IT recipes for chicken, salmon, cod, and turkey, with ingredient quantities measured in grams.
