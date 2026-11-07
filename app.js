@@ -65,6 +65,245 @@ const pets = [
     { id: "gus", name: "Gus", species: "cat", dailyCalories: 262.1 }
 ];
 
+const weightForm = document.getElementById("weightForm");
+const weightPetSelect = document.getElementById("weightPet");
+const weightDateInput = document.getElementById("weightDate");
+
+pets.forEach(pet => {
+    const option = document.createElement("option");
+    option.value = pet.id;
+    option.textContent = pet.name;
+    weightPetSelect.appendChild(option);
+});
+
+const weightChartFilter = document.getElementById("weightChartFilter");
+
+pets.forEach(pet => {
+    const option = document.createElement("option");
+
+    option.value = pet.id;
+    option.textContent = pet.name;
+
+    weightChartFilter.appendChild(option);
+});
+
+weightDateInput.value = new Date().toLocaleDateString("en-CA");
+
+weightForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const petId = weightPetSelect.value;
+    const weight = Number(document.getElementById("weightValue").value);
+    const date = weightDateInput.value;
+    const notes = document.getElementById("weightNotes").value.trim();
+
+    const today = new Date().toLocaleDateString("en-CA");
+
+    if (!pets.some(pet => pet.id === petId)) {
+        alert("Please select a valid pet.");
+        return;
+    }
+
+    if (!Number.isFinite(weight) || weight <= 0) {
+        alert("Please enter a valid weight greater than zero.");
+        return;
+    }
+
+    if (!date || date > today) {
+        alert("Please select a valid date that is not in the future.");
+        return;
+    }
+
+    const record = {
+        id: crypto.randomUUID(),
+        petId,
+        date,
+        weight,
+        unit: "lb",
+        notes
+    };
+
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    history.push(record);
+
+    localStorage.setItem(
+        "weightHistory",
+        JSON.stringify(history)
+    );
+
+    weightForm.reset();
+    weightDateInput.value = today;
+
+    displayWeightHistory();
+
+    alert("Weight record saved successfully.");
+});
+
+function displayWeightHistory() {
+    const container = document.getElementById("weightHistory");
+
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    container.replaceChildren();
+
+    if (history.length === 0) {
+        const message = document.createElement("p");
+        message.textContent = "No weight records saved yet.";
+        container.appendChild(message);
+        return;
+    }
+
+    history.sort((a, b) => b.date.localeCompare(a.date));
+
+    const table = document.createElement("table");
+    table.className = "weight-history-table";
+
+    const header = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    ["Date", "Pet", "Weight", "Notes"].forEach(label => {
+        const th = document.createElement("th");
+        th.textContent = label;
+        headerRow.appendChild(th);
+    });
+
+    header.appendChild(headerRow);
+    table.appendChild(header);
+
+    const tbody = document.createElement("tbody");
+
+    history.forEach(record => {
+        const row = document.createElement("tr");
+
+        const pet = pets.find(pet => pet.id === record.petId);
+
+        const dateCell = document.createElement("td");
+        dateCell.textContent = record.date || "Unknown date";
+
+        const petCell = document.createElement("td");
+        petCell.textContent = pet?.name || record.petId || "Unknown pet";
+
+        const weightCell = document.createElement("td");
+        weightCell.textContent =
+            `${record.weight} ${record.unit || "lb"}`;
+
+        const notesCell = document.createElement("td");
+        notesCell.textContent = record.notes || "—";
+
+        row.append(dateCell, petCell, weightCell, notesCell);
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+}
+
+let weightChart = null;
+
+function displayWeightChart() {
+    const canvas = document.getElementById("weightChart");
+    const selectedPetId = weightChartFilter.value;
+
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    const visiblePets = selectedPetId === "all"
+        ? pets
+        : pets.filter(pet => pet.id === selectedPetId);
+
+    const colors = [
+        "#2563eb",
+        "#dc2626",
+        "#16a34a",
+        "#9333ea",
+        "#ea580c",
+        "#0891b2"
+    ];
+
+    const datasets = visiblePets.map((pet, index) => {
+        const records = history
+            .filter(record =>
+                record.petId === pet.id &&
+                record.date &&
+                Number.isFinite(Number(record.weight)) &&
+                Number(record.weight) > 0
+            )
+            .sort((a, b) => a.date.localeCompare(b.date));
+
+        return {
+            label: pet.name,
+            data: records.map(record => ({
+                x: record.date,
+                y: Number(record.weight)
+            })),
+            borderColor: colors[index % colors.length],
+            backgroundColor: colors[index % colors.length],
+            tension: 0.2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: false
+        };
+    });
+
+    if (weightChart) {
+        weightChart.destroy();
+    }
+
+    weightChart = new Chart(canvas, {
+        type: "line",
+        data: { datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: "nearest",
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    display: datasets.length > 1
+                },
+                tooltip: {
+                    callbacks: {
+                        label: context =>
+                            `${context.dataset.label}: ${context.parsed.y} lb`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: "time",
+                    time: {
+                        unit: "year",
+                        tooltipFormat: "MMM d, yyyy"
+                    },
+                    title: {
+                        display: true,
+                        text: "Date"
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Weight (lb)"
+                    }
+                }
+            }
+        }
+    });
+}
+
+weightChartFilter.addEventListener("change", displayWeightChart);
+
+displayWeightChart();
+displayWeightHistory();
+
 const recipes = {
   chicken: {
     Annie: {
