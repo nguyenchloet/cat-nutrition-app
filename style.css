@@ -335,7 +335,7 @@ main {
     font-weight: 600;
 }
 
-#dinnerRecipes .cat-feeding > ul {
+#dinnerRecipes .recipe-box > ul {
     margin: 8px 0 14px;
     padding: 12px 12px 12px 32px;
     border-radius: 10px;
@@ -344,18 +344,18 @@ main {
     font-size: 14px;
 }
 
-#dinnerRecipes .cat-feeding > ul li + li {
+#dinnerRecipes .recipe-box > ul li + li {
     margin-top: 5px;
 }
 
-#dinnerRecipes .cat-feeding > ul li {
+#dinnerRecipes .recipe-box > ul li {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 16px;
 }
 
-#dinnerRecipes .cat-feeding > ul li span:last-child {
+#dinnerRecipes .recipe-box > ul li span:last-child {
     flex-shrink: 0;
     color: #345c46;
     font-weight: 550;
@@ -390,6 +390,41 @@ main {
 
 #saveFeedings:hover {
     background-color: #294b39;
+}
+
+.recipe-box {
+    margin: 12px 0;
+    padding: 14px 16px;
+    background-color: #f8faf8;
+    border: 1px solid #e4e9e4;
+    border-radius: 12px;
+}
+
+#dinnerRecipes .recipe-box > ul {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    list-style: none;
+}
+
+.recipe-box .calculated-total {
+    border-top: 1px solid #ddd;
+    margin: 14px 0 0;
+    padding: 12px 0 0;
+    color: #345c46;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.calculated-total {
+    font-weight: 600;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    color: #555;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 @media (max-width: 480px) {

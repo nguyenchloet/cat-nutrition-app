@@ -213,6 +213,8 @@ section.appendChild(addButton);
         const result = document.createElement("p");
         const dinnerResult = document.createElement("p");
         const recipeIngredients = document.createElement("ul");
+
+        dinnerResult.className = 'calculated-total';
        
         function calculate() {
             const totalDryGrams = feedingData[cat.id].reduce((total, feeding) => {
@@ -241,11 +243,14 @@ section.appendChild(addButton);
                   recipeIngredients.replaceChildren();
                   const selectedCanned = cannedRecipes[selectedProtein];
                   const wetFoodGrams = remainingCalories / selectedCanned.caloriesPerGram;
-                  dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
+                  dinnerResult.textContent = `Total Meal Weight: ${wetFoodGrams.toFixed(1)} g`;
                 } else if (selectWetFoodType === "homemade") { 
                   const selectedRecipe = recipes[selectedProtein][cat.name];
+                 
+                  const scaleFactor = remainingCalories / selectedRecipe.calories;
 
-                  recipeIngredients.replaceChildren();
+                  recipeIngredients.replaceChildren(); 
+                  
                   selectedRecipe.ingredients.forEach(ingredient => {
                     const item = document.createElement("li");
 
@@ -253,7 +258,8 @@ section.appendChild(addButton);
                     name.textContent = ingredient.name;
 
                     const amount = document.createElement("span");
-                    amount.textContent = `${ingredient.grams} g`;
+                    const adjustedGrams = ingredient.grams * scaleFactor; 
+                    amount.textContent = `${adjustedGrams.toFixed(2)} g`;
 
                     item.append(name, amount);
 
@@ -264,7 +270,7 @@ section.appendChild(addButton);
                     0
                   );
                   const wetFoodGrams = (remainingCalories / selectedRecipe.calories) * recipeGrams;
-                  dinnerResult.textContent = `Wet food portion: ${wetFoodGrams.toFixed(1)} grams of ${selectedProtein}`;
+                  dinnerResult.textContent = `Total Meal Weight: ${wetFoodGrams.toFixed(1)} g`;
                 } else {
                     dinnerResult.textContent = "No recipe available for this protein.";
                 }
@@ -371,7 +377,17 @@ section.appendChild(addButton);
             " Wet food eaten"
         );
 
-        wetFoodSection.append(wetFoodHeading, overrideLabel, flavorLabel, dinnerResult, recipeIngredients, wetFoodCheckboxLabel);
+        const recipeBox = document.createElement("div");
+        recipeBox.className = "recipe-box";
+
+        recipeBox.append(recipeIngredients, dinnerResult);
+
+        wetFoodSection.append(
+            wetFoodHeading, 
+            overrideLabel, 
+            flavorLabel, 
+            recipeBox,
+            wetFoodCheckboxLabel);
         dinnerContainer.appendChild(wetFoodSection);
         
         calculate();
