@@ -93,7 +93,18 @@ weightForm.addEventListener("submit", event => {
     event.preventDefault();
 
     const petId = weightPetSelect.value;
-    const weight = Number(document.getElementById("weightValue").value);
+    const enteredWeight = Number(
+        document.getElementById("weightValue").value
+    );
+
+    const selectedUnit = document.getElementById("weightUnit").value;
+
+    const weight = convertWeight(
+        enteredWeight,
+        selectedUnit,
+        "lb"
+    );
+
     const date = weightDateInput.value;
     const notes = document.getElementById("weightNotes").value.trim();
 
@@ -144,6 +155,7 @@ weightForm.addEventListener("submit", event => {
 
 function displayWeightHistory() {
     const container = document.getElementById("weightHistory");
+    const displayUnit = document.getElementById("chartWeightUnit").value;
 
     const history = JSON.parse(
         localStorage.getItem("weightHistory") || "[]"
@@ -189,8 +201,9 @@ function displayWeightHistory() {
         petCell.textContent = pet?.name || record.petId || "Unknown pet";
 
         const weightCell = document.createElement("td");
-        weightCell.textContent =
-            `${record.weight} ${record.unit || "lb"}`;
+        weightCell.textContent = formatWeight(
+            convertWeight(Number(record.weight), "lb", displayUnit), displayUnit
+        );
 
         const notesCell = document.createElement("td");
         notesCell.textContent = record.notes || "—";
@@ -208,6 +221,7 @@ let weightChart = null;
 function displayWeightChart() {
     const canvas = document.getElementById("weightChart");
     const selectedPetId = weightChartFilter.value;
+    const displayUnit = document.getElementById("chartWeightUnit").value;
 
     const history = JSON.parse(
         localStorage.getItem("weightHistory") || "[]"
@@ -241,7 +255,9 @@ function displayWeightChart() {
             label: pet.name,
             data: records.map(record => ({
                 x: record.date,
-                y: Number(record.weight)
+                y: convertWeight(Number(record.weight),
+                "lb",
+                displayUnit)
             })),
             borderColor: colors[index % colors.length],
             backgroundColor: colors[index % colors.length],
@@ -284,7 +300,7 @@ function displayWeightChart() {
                         );
 
                         return [
-                            `Weight: ${context.parsed.y} lb`,
+                            `Weight: ${formatWeight(context.parsed.y, displayUnit)}`,
                             `Age: ${age}`
                         ];
                         }
@@ -306,12 +322,34 @@ function displayWeightChart() {
                 y: {
                     title: {
                         display: true,
-                        text: "Weight (lb)"
+                        text: `Weight (${displayUnit})`
                     }
                 }
             }
         }
     });
+}
+
+const KG_PER_LB = 0.45359237;
+
+function convertWeight(weight, fromUnit, toUnit) {
+    if (fromUnit === toUnit) {
+        return weight;
+    }
+
+    if (fromUnit === "lb" && toUnit === "kg") {
+        return weight * KG_PER_LB;
+    }
+
+    if (fromUnit === "kg" && toUnit === "lb") {
+        return weight / KG_PER_LB;
+    }
+
+    throw new Error("Unsupported weight unit");
+}
+
+function formatWeight(weight, unit) {
+    return `${weight.toFixed(2)} ${unit}`;
 }
 
 function calculateAgeOnDate(birthDate, measurementDate) {
@@ -342,6 +380,12 @@ function calculateAgeOnDate(birthDate, measurementDate) {
 }
 
 weightChartFilter.addEventListener("change", displayWeightChart);
+document
+    .getElementById("chartWeightUnit")
+    .addEventListener("change", () => {
+        displayWeightChart();
+        displayWeightHistory();
+    });
 
 displayWeightChart();
 displayWeightHistory();
