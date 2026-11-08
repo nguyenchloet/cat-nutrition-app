@@ -607,7 +607,7 @@ function displayDryFoodCalculator() {
 
           feedings.push({
               id: nextId,
-              grams: 0,
+              grams: 10,
               completed: false
           });
 
