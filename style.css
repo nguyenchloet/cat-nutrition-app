@@ -557,6 +557,31 @@ main {
     transition: width 200ms ease;
 }
 
+.calorie-total {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #e4e6e3;
+    border-radius: 10px;
+    background: #fff;
+    color: #343936;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.45;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.calorie-total::before {
+    display: block;
+    margin-bottom: 3px;
+    color: #666b67;
+    content: "Calories consumed / daily target";
+    font-size: 11px;
+    font-weight: 550;
+    letter-spacing: 0.02em;
+    text-align: left;
+}
+
 [hidden] {
     display: none !important;
 }
