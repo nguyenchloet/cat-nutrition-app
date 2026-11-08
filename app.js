@@ -629,10 +629,16 @@ function displayDryFoodCalculator() {
             const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
             const consumedWetCalories = wetFoodEaten[pet.id] ? (wetFoodRecordedMeal[pet.id]?.calories ?? 0) : 0;
             const totalConsumedCalories = dryCalories + consumedWetCalories;
+            /* Calculate how many calories pet has consumed over daily target */
+            const excessCalories = Math.max(0, totalConsumedCalories - pet.dailyCalories);
 
-            const progress = pet.dailyCalories > 0
+            const progressBarWidth = pet.dailyCalories > 0
             ? Math.min(100, (totalConsumedCalories / pet.dailyCalories) * 100)
             : 0;
+
+            const actualProgress = pet.dailyCalories > 0
+                ? (totalConsumedCalories / pet.dailyCalories) * 100
+                : 0;
 
                 result.innerHTML = `
                     <div class="calorie-stats">
@@ -661,12 +667,28 @@ function displayDryFoodCalculator() {
                         aria-label="${pet.name} total calorie consumption"
                         aria-valuemin="0"
                         aria-valuemax="100"
-                        aria-valuenow="${progress.toFixed(0)}">
+                        aria-valuenow="${Math.min(100, actualProgress).toFixed(0)}">
+                        
                         <div class="calorie-progress-fill"
-                            style="width: ${progress}%"></div>
+                            style="width: ${progressBarWidth}%;
+                            background-color: ${excessCalories > 0.05 ? '#dc2626' : ''}
+                            ">
+                        </div>
                     </div>
-                    
+
+                    <p class="calorie-total">
+                        ${totalConsumedCalories.toFixed(1)} / 
+                        ${pet.dailyCalories.toFixed(1)} kcal consumed
+                        (${actualProgress.toFixed(1)}%)
+                    </p>
+
+                    ${excessCalories > 0.05
+                        ? `<p class="calorie-overage">
+                            ${excessCalories.toFixed(1)} kcal over daily target </p>`
+                        : ''
+                    }
                 `;
+                
                 const override = wetFoodOverrides[pet.id];
                 const selectedProtein = override
                     ? override.flavor
