@@ -497,7 +497,8 @@ const dinnerContainer = document.getElementById("dinnerRecipes");
 
 const feedingData = {};
 const wetFoodOverrides = {};
-const wetFoodCompleted = {};
+const wetFoodEaten = {};
+const wetFoodRecordedMeal = {};
 
 /* Display the dry food calculator for each pet */
 function displayDryFoodCalculator() {
@@ -545,18 +546,41 @@ function displayDryFoodCalculator() {
 
           /* Update feeding grams and recalculate when input changes */
           gramsInput.addEventListener("input", () => {
-            feeding.grams = Math.max(0, Number(gramsInput.value) || 0);
-            calculate();
+            feeding.grams = gramsInput.value.trim() === ""
+            ? NaN
+            : Number(gramsInput.value);
+
+            if (Number.isFinite(feeding.grams) && feeding.grams >= 0) {
+                calculate();
+            }
           });
 
           /* Complete a feeding button */
           checkbox.addEventListener("change", () => {
+            if (feeding.completed && !checkbox.checked) {
+                const confirmed = confirm(
+                    `Unmark ${pet.name}'s dry food feeding ${feeding.id} as eaten?`
+                );
+                if (!confirmed) {
+                    checkbox.checked = true;
+                    return;
+                }
+            }
             feeding.completed = checkbox.checked;
             calculate();
           });
           
           /* Remove a feeding button */
           removeButton.addEventListener("click", () => {
+
+            if (feeding.completed) {
+                const confirmed = confirm(
+                    `Remove ${pet.name}'s completed dry-food feeding ${feeding.id}? This will remove its recorded quantity and eaten status.`
+                );
+                if (!confirmed) {
+                    return;
+                }
+            }
             feedingData[pet.id] = feedingData[pet.id].filter(
             item => item.id !== feeding.id
           );
@@ -603,9 +627,7 @@ function displayDryFoodCalculator() {
 
             const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
             const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
-
-            const consumedWetCalories = wetFoodCompleted[pet.id] ? remainingCalories : 0;
-
+            const consumedWetCalories = wetFoodEaten[pet.id] ? (wetFoodRecordedMeal[pet.id]?.calories ?? 0) : 0;
             const totalConsumedCalories = dryCalories + consumedWetCalories;
 
             const progress = pet.dailyCalories > 0
@@ -654,11 +676,14 @@ function displayDryFoodCalculator() {
                     ? override.type
                     : wetFoodSelect.value;
 
-                const wetFood = calculateWetFood(
-                    pet,
-                    remainingCalories,
-                    selectWetFoodType,
-                    selectedProtein
+                /* Preserve recorded meal in saved data even when eaten checkbox is unchecked */
+                const wetFood = wetFoodEaten[pet.id] && wetFoodRecordedMeal[pet.id]
+                    ? wetFoodRecordedMeal[pet.id]
+                    : calculateWetFood(
+                        pet,
+                        remainingCalories,
+                        selectWetFoodType,
+                        selectedProtein
                 );
                     recipeIngredients.replaceChildren();
                     dinnerResult.replaceChildren();
@@ -778,10 +803,41 @@ function displayDryFoodCalculator() {
 
         const wetFoodCheckbox = document.createElement("input");
         wetFoodCheckbox.type = "checkbox";
-        wetFoodCheckbox.checked = wetFoodCompleted[pet.id] || false;
+        wetFoodCheckbox.checked = wetFoodEaten[pet.id] || false;
 
         wetFoodCheckbox.addEventListener("change", () => {
-            wetFoodCompleted[pet.id] = wetFoodCheckbox.checked;
+            if (wetFoodCheckbox.checked) {
+                const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
+
+                const remainingCalories = Math.max(
+                    0,
+                    pet.dailyCalories - dryCalories
+                );
+                const override = wetFoodOverrides[pet.id];
+
+                const type = override?.type || wetFoodSelect.value;
+                const flavor = override?.flavor || proteinSelect.value;
+
+                wetFoodRecordedMeal[pet.id] =
+                    calculateWetFood(
+                        pet,
+                        remainingCalories,
+                        type,
+                        flavor
+                    );
+
+                wetFoodEaten[pet.id] = true;
+            } else {
+                const confirmed = confirm(
+                    `Unmark ${pet.name}'s wet food as eaten? The recorded amount will be preserved.`
+                );
+                if (!confirmed) {
+                    wetFoodCheckbox.checked = true;
+                    return;
+                }
+
+                wetFoodEaten[pet.id] = false;
+            }
             calculate();
         });
 
@@ -822,9 +878,35 @@ proteinSelect.addEventListener("change", displayDryFoodCalculator);
 wetFoodSelect.addEventListener("change", displayDryFoodCalculator);
 
 /* Save the date, each pet's calorie target, dry food feedings and completion status, dry food calories, and selected wet food type and flavor */
+function validateFeedings() {
+    const errors = [];
+
+    pets.forEach(pet => {
+        const feedings = feedingData[pet.id] || [];
+
+        feedings.forEach(feeding => {
+            if (
+                !Number.isFinite(feeding.grams) ||
+                feeding.grams < 0
+            ) {
+                errors.push(
+                    `${pet.name}: Feeding ${feeding.id} must have a valid, non-negative quantity.`
+                );
+            }
+        });
+    });
+    return errors;
+}
 const saveFeedingsButton = document.getElementById("saveFeedings");
 
 saveFeedingsButton.addEventListener("click", () => {
+    const errors = validateFeedings();
+
+    if (errors.length > 0) {
+        alert("Cannot save feedings:\n\n" + errors.join("\n")
+        );
+        return;
+    }
     const today = new Date().toLocaleDateString("en-CA");
 
     const dailyRecord = {
@@ -850,17 +932,19 @@ saveFeedingsButton.addEventListener("click", () => {
                 pet.dailyCalories - dryCalories
             );
 
-            const wetFood = calculateWetFood(
-                pet,
-                remainingCalories,
-                wetFoodType,
-                wetFoodFlavor
+            const wetFood = wetFoodEaten[pet.id] && wetFoodRecordedMeal[pet.id]
+                ? wetFoodRecordedMeal[pet.id]
+                : calculateWetFood(
+                    pet,
+                    remainingCalories,
+                    wetFoodType,
+                    wetFoodFlavor
             );
 
-            const isWetFoodCompleted = wetFoodCompleted[pet.id] || false;
+            const hasEatenWetFood = wetFoodEaten[pet.id] || false;
 
             const totalCaloriesConsumed =
-                dryCalories + (isWetFoodCompleted ? wetFood?.calories || 0 : 0);
+                dryCalories + (hasEatenWetFood ? wetFood?.calories || 0 : 0);
 
             return {
                 id: pet.id,
@@ -876,11 +960,12 @@ saveFeedingsButton.addEventListener("click", () => {
                 dryCalories,
 
                 usesSharedWetFood: !override,
-                wetFoodType,
-                wetFoodFlavor,
+                wetFoodType: wetFood.type,
+                wetFoodFlavor: wetFood.flavor,
                 wetFood,
 
-                wetFoodCompleted: isWetFoodCompleted,
+                /* wetFoodCompleted is name used in saved data format, while wetFoodEaten is used by JS code */
+                wetFoodCompleted: hasEatenWetFood,
                 totalCaloriesConsumed
             };
         })
@@ -895,14 +980,36 @@ saveFeedingsButton.addEventListener("click", () => {
     );
 
     if (existingIndex >= 0) {
+        const confirmed = confirm("A feeding record already exists for today. Replace it with the current feeding information?"
+        );
+        if (!confirmed) {
+            return;
+        }
         history[existingIndex] = dailyRecord;
     } else {
         history.push(dailyRecord);
     }
 
+    const petsWithNoFeedings = pets.filter(pet => (feedingData[pet.id] || []).length === 0);
+
+    if (petsWithNoFeedings.length > 0) {
+        const petNames = petsWithNoFeedings
+            .map(pet => pet.name)
+            .join(", ");
+
+        const confirmed = confirm(
+            `${petNames} have no dry food feeding entries. Save anyway?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+    }
+
     localStorage.setItem("feedingHistory", JSON.stringify(history));
     displayFeedingHistory();
     saveFeedingsButton.textContent = "Feedings Saved";
+    alert("Today's feeding record was saved successfully.");
 });
 
 function loadTodaysFeedings() {
@@ -931,8 +1038,12 @@ function loadTodaysFeedings() {
     savedPets.forEach(savedPet => {
         feedingData[savedPet.id] = savedPet.dryFeedings;
 
-        wetFoodCompleted[savedPet.id] =
-            savedPet.wetFoodCompleted || false;
+        wetFoodEaten[savedPet.id] =
+            savedPet.wetFoodCompleted ?? savedPet.wetFoodEaten ?? false;
+
+            if (savedPet.wetFood) {
+                wetFoodRecordedMeal[savedPet.id] = savedPet.wetFood;
+            }
 
         if (savedPet.usesSharedWetFood === false) {
             wetFoodOverrides[savedPet.id] = {
@@ -998,7 +1109,7 @@ function displayFeedingHistory() {
                     return total + calories;
                 }, 0);
 
-            const historicalWetCalories = pet.wetFoodCompleted
+            const historicalWetCalories = (pet.wetFoodCompleted ?? pet.wetFoodEaten ?? false)
                 ? (pet.wetFood?.calories ?? 0)
                 : 0;
 
@@ -1044,7 +1155,7 @@ function displayFeedingHistory() {
                     `${pet.wetFood.flavor} (${pet.wetFood.type}) — ` +
                     `${pet.wetFood.grams.toFixed(1)} g, ` +
                     `${pet.wetFood.calories.toFixed(1)} kcal — ` +
-                    (pet.wetFoodCompleted ? "Eaten" : "Not eaten");
+                    ((pet.wetFoodCompleted ?? pet.wetFoodEaten ?? false) ? "Eaten" : "Not eaten");
             } else {
                 wetDescription.textContent =
                     "Detailed wet food quantities unavailable for this record.";
