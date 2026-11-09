@@ -1,8 +1,8 @@
-# Cat Nutrition Tracker
+# Pet Nutrition Tracker
 
-A mobile-friendly web application for managing homemade cat food recipes, tracking daily nutrition, monitoring weight changes, and recording dietary and behavioral observations.
+A mobile-friendly web application for managing homemade pet food recipes, tracking daily nutrition, monitoring weight changes, and recording dietary and behavioral observations.
 
-Designed for Annie and Gus, with an emphasis on accurate nutritional information and evidence-based pet food safety monitoring.
+Designed for my cats, with an emphasis on accurate nutritional information and evidence-based pet food safety monitoring.
 
 [App Link](https://nguyenchloet.github.io/cat-nutrition-app/)
 
