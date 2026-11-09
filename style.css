@@ -705,6 +705,30 @@ main {
     background: #414a44;
 }
 
+.recipe-disclaimer {
+    margin-top: 12px;
+    font-size: 0.4rem;
+    line-height: 1.5;
+    color: #777;
+}
+
+.feeding-disclaimers {
+    margin: 20px 0 12px;
+    font-size: 0.6rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: #777;
+}
+
+.feeding-disclaimers h4 {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.feeding-disclaimers p {
+    margin: 6px 0;
+}
+
 @media (max-width: 600px) {
     .weight-history-table th,
     .weight-history-table td {

@@ -457,6 +457,34 @@ const cannedRecipes = {
     turkey: { caloriesPerGram: 0.985 }
 };
 
+const recipeDisclaimers = {
+    canned: "Portions are estimated using Balance IT daily calorie targets and may not reflect your pet's actual calorie needs.",
+    homemade: "Recipes are sourced from Balance IT using each pet's age and weight. Displayed portions may be adjusted to account for dry food consumed. Nutritional balance of the combined diet has not been verified."
+};
+
+function displayFeedingDisclaimers() {
+    const container = document.getElementById("feedingDisclaimers");
+
+    if (!container) return;
+
+    container.replaceChildren();
+    const selectedTypes = new Set(
+        pets.map(pet =>
+            wetFoodOverrides[pet.id]?.type || wetFoodSelect.value
+        )
+    );
+
+    const heading = document.createElement("h4");
+    heading.textContent = "About these estimates:";
+    container.appendChild(heading);
+
+    selectedTypes.forEach(type => {
+        const disclaimer = document.createElement("p");
+        disclaimer.textContent = recipeDisclaimers[type] || "";
+        container.appendChild(disclaimer);
+    });
+}
+
 function calculateWetFood(pet, remainingCalories, type, flavor) {
     if (type === "canned") {
         const canned = cannedRecipes[flavor];
@@ -806,6 +834,7 @@ function displayDryFoodCalculator() {
 
           updateOverrideFlavors();
           calculate();
+          displayFeedingDisclaimers();
       });
 
       flavorSelect.addEventListener("change", () => {
@@ -871,6 +900,9 @@ function displayDryFoodCalculator() {
         const recipeBox = document.createElement("div");
         recipeBox.className = "recipe-box";
 
+        const recipeDisclaimer = document.createElement("p");
+        recipeDisclaimer.className = "recipe-disclaimer";
+
         recipeBox.append(recipeIngredients, dinnerResult);
 
         const recipeRow = document.createElement("div");
@@ -894,6 +926,7 @@ function displayDryFoodCalculator() {
         
         calculate();
     });
+    displayFeedingDisclaimers();
 }
 
 proteinSelect.addEventListener("change", displayDryFoodCalculator);
