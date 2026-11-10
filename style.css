@@ -12,7 +12,7 @@ body {
 
 header {
   background: #fff;
-  padding: 24px max(20px, calc((100% - 600px) / 2 + 20px));
+  padding: 24px max(20px, calc((100% - 1200px) / 2));
   border-bottom: 1px solid #e7e7e5;
 }
 
@@ -30,7 +30,7 @@ header p {
 }
 
 main {
-  max-width: 600px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -136,14 +136,6 @@ main {
     margin-bottom: 8px;
 }
 
-#protein {
-    display: block;
-    width: 100%;
-    margin-top: 8px;
-    padding: 10px;
-    font: inherit;
-}
-
 .card > label {
     display: block;
     margin-top: 12px;
@@ -152,10 +144,10 @@ main {
     font-weight: 550;
 }
 
-#wetFoodType,
-#protein,
+.wet-food-controls select,
 .pet-feeding select,
-.pet-feeding input[type="number"] {
+.pet-feeding input[type="number"],
+.feeding-row input[type="time"] {
     min-height: 40px;
     border: 1px solid #d5ded6;
     border-radius: 8px;
@@ -164,27 +156,32 @@ main {
     font: inherit;
 }
 
-#wetFoodType {
-    margin: 6px 0 2px;
-    padding: 8px 10px;
+.wet-food-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 760px;
+    margin: 12px 0 16px;
+}
+
+.wet-food-controls label {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    color: #505651;
+    font-size: 14px;
+    font-weight: 550;
+}
+
+.wet-food-controls select {
+    width: 100%;
+    min-width: 0;
+    padding: 7px 9px;
+    font-size: 14px;
 }
 
 .pet-feeding {
-    padding: 14px 0;
-    border-bottom: 1px solid #e7e7e5;
-}
-
-.pet-feeding label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-right: 16px;
-    margin-bottom: 10px;
-}
-
-.pet-feeding input[type="number"] {
-    width: 65px;
-    padding: 6px 8px;
+    min-width: 0;
 }
 
 .pet-feeding select {
@@ -198,49 +195,13 @@ main {
 }
 
 .feeding-row {
+    min-width: 0;
     min-height: 48px;
-    padding: 6px 8px;
+    padding: 5px 7px;
     border-radius: 10px;
     background-color: #f8f8f7;
     transition: background-color 140ms ease;
-}
-
-.feeding-row:hover {
-    background-color: #f1f2f0;
-}
-
-.feeding-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-
-.feeding-row > span:first-child {
-    min-width: 75px;
-    color: #505651;
-    font-size: 14px;
-    font-weight: 550;
-}
-
-.feeding-row input[type="number"] {
-    width: 65px;
-    padding: 6px 8px;
-    box-sizing: border-box;
-}
-
-.feeding-row > span:nth-child(3) {
-    color: #666b67;
-    font-size: 14px;
-}
-
-.feeding-row .remove-feeding {
-    margin-left: auto;
-    padding: 4px 10px;
-    cursor: pointer;
-    background-color: #fce8e8;
-    color: #b42318;
-    font-weight: bold;
+    margin-bottom: 8px;
 }
 
 .feeding-row .remove-feeding:hover {
@@ -279,16 +240,18 @@ main {
     line-height: 1;
 }
 
-.feeding-row:has(input[type="checkbox"]:checked) {
-    background-color: #eef1ed;
-}
-
-.feeding-row:has(input[type="checkbox"]:checked) > span:first-child {
-    color: #46534a;
+.feeding-row .feeding-complete {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    cursor: pointer;
 }
 
 .pet-feeding > button {
     margin-top: 6px;
+    min-height: 40px;
     padding: 6px 12px;
     cursor: pointer;
     background-color: #eeefed;
@@ -303,116 +266,240 @@ main {
 #dryFoodCalculator {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-#dryFoodCalculator .feeding-row {
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 6px;
-}
-
-#dryFoodCalculator .feeding-row > span:first-child {
-    min-width: 0;
-    flex: 1 1 75px;
-    font-size: 12px;
-}
-
-#dryFoodCalculator .feeding-row input[type="number"] {
-    width: 52px;
-}
-
-#dryFoodCalculator .feeding-row .remove-feeding {
-    margin-left: 0;
-    padding: 4px 7px;
+    align-items: start;
+    gap: 16px;
 }
 
 #dryFoodCalculator .pet-feeding {
-    min-width: 0;
-    padding: 12px;
+    padding: 14px;
     border: 1px solid #e7e7e5;
     border-radius: 12px;
     background: #fafaf9;
 }
 
-#dryFoodCalculator .pet-feeding > p {
-    margin: 10px 0 2px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background-color: #f1f2f0;
-    color: #46534a;
-    font-size: 14px;
-    font-weight: 550;
-    line-height: 1.6;
+#dryFoodCalculator .feeding-row {
+    display: grid;
+    grid-template-columns:
+        minmax(85px, 0.9fr) minmax(72px, 0.8fr) max-content
+        minmax(85px, 1fr) minmax(80px, 1fr) 40px 44px;
+    grid-template-areas: "name grams unit method time remove done";
+    align-items: center;
+    gap: 8px;
+    padding: 4px 5px;
 }
 
-#dinnerRecipes .pet-feeding > label {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 8px 0 12px;
+#dryFoodCalculator .feeding-row:hover {
+    background-color: #f1f2f0;
+}
+
+#dryFoodCalculator .feeding-name {
+    min-width: 0;
     color: #505651;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#dryFoodCalculator .feeding-grams {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    padding: 5px 8px;
+}
+
+#dryFoodCalculator .feeding-unit {
+    color: #666b67;
     font-size: 14px;
+}
+
+#dryFoodCalculator .feeding-method,
+#dryFoodCalculator .feeding-time {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    padding: 5px 6px;
+    font-size: 13px;
+}
+
+#dryFoodCalculator .feeding-time {
+    background: #fff;
+    font-family: inherit;
+    font-size: 13px;
+}
+
+#dryFoodCalculator .remove-feeding {
+    width: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 4px;
+    justify-self: center;
+    background-color: #fce8e8;
+    color: #b42318;
+    font-weight: bold;
+}
+
+#dryFoodCalculator .feeding-complete {
+    grid-area: done;
+}
+
+#dryFoodCalculator .feeding-row:has(.feeding-complete input:checked) {
+    background-color: #eef1ed;
+}
+
+#dryFoodCalculator .feeding-row:has(.feeding-complete input:checked) .feeding-name {
+    color: #46534a;
+}
+
+#dryFoodCalculator .feeding-row .feeding-name {
+    grid-area: name;
+}
+
+#dryFoodCalculator .feeding-row .feeding-grams {
+    grid-area: grams;
+}
+
+#dryFoodCalculator .feeding-row .feeding-unit {
+    grid-area: unit;
+}
+
+#dryFoodCalculator .feeding-row .feeding-method {
+    grid-area: method;
+}
+
+#dryFoodCalculator .feeding-row .feeding-time {
+    grid-area: time;
+}
+
+#dryFoodCalculator .feeding-row .remove-feeding {
+    grid-area: remove;
+    margin: 0;
+}
+
+#dinnerRecipes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 16px;
+}
+
+#dinnerRecipes .pet-feeding {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+    padding: 14px;
+    border: 1px solid #e7e7e5;
+    border-radius: 12px;
+    background: #fafaf9;
+}
+
+#dinnerRecipes .pet-feeding > h3,
+#dinnerRecipes .pet-feeding > .recipe-row {
+    grid-column: 1 / -1;
 }
 
 #dinnerRecipes .pet-feeding > label:has(select) {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    min-width: 0;
+    margin: 0;
+    color: #505651;
+    font-size: 13px;
     font-weight: 550;
 }
 
 #dinnerRecipes .pet-feeding > label select {
-    min-width: 150px;
+    width: 100%;
+    min-width: 0;
+    padding: 6px 7px;
+    font-size: 13px;
 }
 
-#dinnerRecipes .pet-feeding > p {
-    margin: 12px 0;
-    color: #46534a;
+#dinnerRecipes .wet-feeding-list,
+#dinnerRecipes .add-wet-feeding {
+    grid-column: 1 / -1;
+}
+
+#dinnerRecipes .wet-feeding-row {
+    display: grid;
+    grid-template-columns: minmax(72px, 1fr) 68px max-content minmax(90px, 1fr) 24px 30px;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+#dinnerRecipes .wet-feeding-heading-label {
+    min-width: 0;
+    color: #505651;
+    font-size: 14px;
     font-weight: 600;
 }
 
-#dinnerRecipes .recipe-box > ul {
-    margin: 8px 0 14px;
-    padding: 12px 12px 12px 32px;
-    border-radius: 10px;
-    background: #f8f8f7;
-    color: #505651;
-    font-size: 14px;
-}
-
-#dinnerRecipes .recipe-box > ul li + li {
-    margin-top: 5px;
-}
-
-#dinnerRecipes .recipe-box > ul li {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-#dinnerRecipes .recipe-box > ul li span:last-child {
-    flex-shrink: 0;
-    color: #46534a;
-    font-weight: 550;
-    text-align: right;
+#dinnerRecipes .wet-feeding-unit {
+    color: #666b67;
+    font-size: 12px;
     white-space: nowrap;
 }
 
-#dinnerRecipes .pet-feeding > label:has(input[type="checkbox"]) {
-    display: flex;
-    min-height: 44px;
-    margin: 10px 0 2px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    background-color: #f8f8f7;
-    color: #505651;
-    font-weight: 550;
-    transition: background-color 140ms ease, color 140ms ease;
+#dinnerRecipes .wet-feeding-grams,
+#dinnerRecipes .wet-feeding-time {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    padding: 5px 7px;
+    border: 1px solid #d5ded6;
+    border-radius: 8px;
+    background: #fff;
+    color: #252525;
+    font: inherit;
+    font-size: 13px;
 }
 
-#dinnerRecipes .pet-feeding > label:has(input[type="checkbox"]:checked) {
-    background-color: #eef1ed;
-    color: #46534a;
+#dinnerRecipes .wet-feeding-row input[type="checkbox"] {
+    justify-self: center;
+}
+
+#dinnerRecipes .wet-feeding-remove {
+    width: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 2px 6px;
+    background: #f7eeee;
+    color: #9e4b45;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+#dinnerRecipes .wet-feeding-remove:hover {
+    background: #f1dddd;
+}
+
+@media (max-width: 480px) {
+    #dinnerRecipes .wet-feeding-row {
+        grid-template-columns: minmax(0, 1fr) 56px max-content minmax(0, 1fr) 24px 30px;
+        gap: 4px;
+    }
+
+    #dinnerRecipes .wet-feeding-grams,
+    #dinnerRecipes .wet-feeding-time {
+        padding-right: 4px;
+        padding-left: 4px;
+    }
+}
+
+#dinnerRecipes .add-wet-feeding {
+    justify-self: start;
+    min-height: 32px;
+    margin: 4px 0 0;
+    padding: 3px 2px;
+    background: transparent;
+    color: #505a53;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+#dinnerRecipes .add-wet-feeding:hover {
+    background: #f1f2f0;
 }
 
 #saveFeedings {
@@ -428,8 +515,9 @@ main {
 }
 
 .recipe-box {
-    margin: 12px 0;
-    padding: 14px 16px;
+    min-width: 0;
+    margin: 0;
+    padding: 12px;
     background-color: #fafaf9;
     border: 1px solid #e7e7e5;
     border-radius: 12px;
@@ -445,14 +533,14 @@ main {
 #dinnerRecipes .recipe-row {
     display: flex;
     align-items: stretch;
-    gap: 12px;
-    margin: 12px 0;
+    gap: 8px;
+    min-width: 0;
+    margin: 4px 0 0;
 }
 
 #dinnerRecipes .recipe-row .recipe-box {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
-    margin: 0;
 }
 
 #dinnerRecipes .recipe-row > label {
@@ -460,9 +548,10 @@ main {
     align-items: center;
     justify-content: center;
     align-self: stretch;
-    flex: 0 0 44px;
+    flex: 0 0 48px;
+    min-height: 44px;
     margin: 0;
-    padding: 8px;
+    padding: 4px;
     cursor: pointer;
     border: 1px solid #e4e9e4;
     border-radius: 10px;
@@ -473,6 +562,34 @@ main {
 #dinnerRecipes .recipe-row > label:has(input:checked) {
     background-color: #edf4ed;
     border-color: #345c46;
+}
+
+#dinnerRecipes .recipe-box > ul {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    list-style: none;
+}
+
+#dinnerRecipes .recipe-box > ul li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    color: #505651;
+    font-size: 14px;
+}
+
+#dinnerRecipes .recipe-box > ul li + li {
+    margin-top: 5px;
+}
+
+#dinnerRecipes .recipe-box > ul li span:last-child {
+    flex-shrink: 0;
+    color: #46534a;
+    font-weight: 550;
+    text-align: right;
+    white-space: nowrap;
 }
 
 .recipe-box .calculated-total {
@@ -517,11 +634,12 @@ main {
 .calorie-stat {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    gap: 2px;
     text-align: center;
     min-width: 0;
-    min-height: 75px;
+    min-height: 56px;
 }
 
 .calorie-stat span {
@@ -542,7 +660,29 @@ main {
     font-size: 10px;
 }
 
+.calorie-stat-dry strong {
+    color: #855e1a;
+}
+
+.calorie-stat-wet strong {
+    color: #B58A32;
+}
+
+.calorie-target-default strong {
+    color: #252525;
+}
+
+.calorie-target-reached strong {
+    color: #4F8060;
+}
+
+.calorie-target-over strong {
+    color: #DC2626;
+}
+
 .calorie-progress {
+    display: flex;
+    width: 100%;
     height: 8px;
     margin-top: 12px;
     overflow: hidden;
@@ -555,6 +695,28 @@ main {
     border-radius: inherit;
     background: #345c46;
     transition: width 200ms ease;
+}
+
+.calorie-progress-dry {
+    height: 100%;
+    flex-shrink: 0;
+    background-color: #855e1a;
+}
+
+.calorie-progress-wet {
+    height: 100%;
+    flex-shrink: 0;
+    background-color: #B58A32;
+}
+
+.calorie-progress.is-complete {
+    outline: 2px solid #4F8060;
+    outline-offset: 2px;
+}
+
+.calorie-progress.is-over {
+    outline: 2px solid #DC2626;
+    outline-offset: 2px;
 }
 
 .calorie-total {
@@ -714,7 +876,7 @@ main {
 
 .feeding-disclaimers {
     margin: 20px 0 12px;
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     font-style: italic;
     line-height: 1.5;
     color: #777;
@@ -735,9 +897,7 @@ main {
         padding: 8px;
         font-size: 14px;
     }
-}
 
-@media (max-width: 600px) {
     .history-card {
         padding: 12px;
     }
@@ -765,18 +925,6 @@ main {
         border-radius: 14px;
     }
 
-    .feeding-row {
-        gap: 6px;
-    }
-
-    .feeding-row > span:first-child {
-        min-width: 68px;
-    }
-
-    .feeding-row input[type="number"] {
-        width: 60px;
-    }
-
     nav {
         gap: 4px;
         padding-right: 6px;
@@ -789,9 +937,86 @@ main {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 1100px) {
+    #dryFoodCalculator .feeding-row {
+        grid-template-columns: minmax(0, 1fr) minmax(68px, 80px) max-content 40px 44px;
+        grid-template-areas:
+            "name grams unit remove done"
+            "method method method time time";
+        column-gap: 6px;
+        row-gap: 2px;
+    }
+
+    #dryFoodCalculator .feeding-method,
+    #dryFoodCalculator .feeding-time {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 760px) {
     #dryFoodCalculator {
         grid-template-columns: 1fr;
+    }
+
+    #dinnerRecipes {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    #dryFoodCalculator .feeding-row {
+        grid-template-columns: minmax(0, 1fr) 64px max-content 36px 40px;
+        column-gap: 4px;
+        padding-right: 4px;
+        padding-left: 4px;
+    }
+
+    #dryFoodCalculator .remove-feeding {
+        width: 36px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    #dryFoodCalculator .feeding-complete {
+        width: 40px;
+    }
+
+    .calorie-summary {
+        padding: 7px;
+    }
+
+    .calorie-stats {
+        gap: 3px;
+    }
+
+    .calorie-stat {
+        flex-direction: row;
+        justify-content: center;
+        min-height: 0;
+        gap: 3px;
+    }
+
+    .calorie-stat span {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .calorie-stat strong {
+        font-size: 13px;
+    }
+
+    .calorie-stat small {
+        font-size: 9px;
+    }
+
+    .calorie-progress {
+        margin-top: 8px;
+    }
+
+    .calorie-total {
+        margin-top: 7px;
+        padding: 7px 8px;
+        font-size: 12px;
     }
 }
 

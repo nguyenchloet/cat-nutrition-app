@@ -29,18 +29,23 @@
 
                 <div class="card">  
                     <h2>Wet Food Meal</h2>   
-                    <label for="wetFoodType">Wet food type:</label>
-                    <select id="wetFoodType">
-                        <option value="homemade">Homemade (Balance IT)</option>
-                        <option value="canned">Canned (Halo)</option>
-                    </select>                 
-                    
-                    <label for="protein">Choose flavor:</label>
-                    <select id="protein">
-                        <option value="chicken">Chicken</option>
-                        <option value="turkey">Turkey</option>
-                        <option value="salmon">Salmon</option>
-                    </select>
+                    <div class="wet-food-controls">
+                        <label for="wetFoodType">
+                            Wet food type
+                            <select id="wetFoodType">
+                                <option value="homemade">Homemade (Balance IT)</option>
+                                <option value="canned">Canned (Halo)</option>
+                            </select>
+                        </label>
+                        <label for="protein">
+                            Protein / flavor
+                            <select id="protein">
+                                <option value="chicken">Chicken</option>
+                                <option value="turkey">Turkey</option>
+                                <option value="salmon">Salmon</option>
+                            </select>
+                        </label>
+                    </div>
                     
                     <div id="dinnerRecipes"></div>
                     <div id="feedingDisclaimers" class="feeding-disclaimers" aria-live="polite"></div>
