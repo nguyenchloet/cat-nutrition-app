@@ -459,7 +459,7 @@ const cannedRecipes = {
 
 const recipeDisclaimers = {
     canned: "Portions are estimated using Balance IT daily calorie targets and may not reflect your pet's actual calorie needs.",
-    homemade: "Recipes are sourced from Balance IT using each pet's age and weight. Displayed portions may be adjusted to account for dry food consumed. Nutritional balance of the combined diet has not been verified."
+    homemade: "Recipes are sourced from Balance IT using each pet's sex, age and weight. Displayed portions may be adjusted to account for dry food consumed. Nutritional balance of the combined diet has not been verified."
 };
 
 function displayFeedingDisclaimers() {
