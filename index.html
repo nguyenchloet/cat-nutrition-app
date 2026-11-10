@@ -21,9 +21,7 @@
 
             <section id="tonight" class="page active">
                 <div class="card">
-                    <h2>Today's Feedings</h2>
-                    <p>Dry Food: Blue Buffalo Wilderness Indoor Chicken | 3.674 kcal per gram</p>
-                    
+                    <h2>Today's Feedings</h2>                    
                     <div id="dryFoodCalculator"></div>
                 </div>
 
@@ -64,42 +62,44 @@
             <section id="weights" class="page">
                 <div class="card">
                     <h2>Weight Tracking</h2>
-                    <h3>Add Weight Record</h3>
-                    <form id="weightForm">
-                        <label for="weightPet">Pet</label>
-                        <select id="weightPet" required></select>
+                    <details class="weight-record-disclosure">
+                        <summary>Add Weight Record</summary>
+                        <form id="weightForm">
+                            <label for="weightPet">Pet</label>
+                            <select id="weightPet" required></select>
 
-                        <label for="weightValue">Weight (lb)</label>
-                        <input
-                            type="number"
-                            id="weightValue"
-                            min="0.01"
-                            step="0.01"
-                            required
-                        >
+                            <label for="weightValue">Weight (lb)</label>
+                            <input
+                                type="number"
+                                id="weightValue"
+                                min="0.01"
+                                step="0.01"
+                                required
+                            >
 
-                        <label for="weightUnit">Unit</label>
-                        <select id="weightUnit">
-                            <option value="lb">Pounds (lb)</option>
-                            <option value="kg">Kilograms (kg)</option>
-                        </select>
+                            <label for="weightUnit">Unit</label>
+                            <select id="weightUnit">
+                                <option value="lb">Pounds (lb)</option>
+                                <option value="kg">Kilograms (kg)</option>
+                            </select>
 
-                        <label for="weightDate">Date Weighed</label>
-                        <input
-                            type="date"
-                            id="weightDate"
-                            required
-                        >
+                            <label for="weightDate">Date Weighed</label>
+                            <input
+                                type="date"
+                                id="weightDate"
+                                required
+                            >
 
-                        <label for="weightNotes">Notes (optional)</label>
-                        <input
-                            type="text"
-                            id="weightNotes"
-                            placeholder="e.g. Annual vet visit"
-                        >
+                            <label for="weightNotes">Notes (optional)</label>
+                            <input
+                                type="text"
+                                id="weightNotes"
+                                placeholder="e.g. Annual vet visit"
+                            >
 
-                        <button type="submit">Save Weight</button>
-                    </form>
+                            <button type="submit">Save Weight</button>
+                        </form>
+                    </details>
                 </div>
                 <div class="card">
                     <h3>Weight Over Time</h3>
@@ -128,6 +128,7 @@
                 <div class="card">
                     <h2>Saved Products</h2>
                     <p>Your pet food products will appear here.</p>
+                    <p>Dry Food: Blue Buffalo Wilderness Indoor Chicken | 3.674 kcal per gram</p>
                 </div>
             </section>
 
