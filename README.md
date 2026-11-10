@@ -4,7 +4,7 @@ A mobile-friendly web application for managing homemade pet food recipes, tracki
 
 Designed for my cats, with an emphasis on accurate nutritional information and evidence-based pet food safety monitoring.
 
-[App Link](https://nguyenchloet.github.io/cat-nutrition-app/)
+[App Link](https://nguyenchloet.github.io/pet-nutrition-app/)
 
 ## Planned Features
 
