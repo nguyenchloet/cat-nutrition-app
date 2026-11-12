@@ -24,7 +24,7 @@ Designed for my cats, with an emphasis on accurate nutritional information and e
 - JavaScript
 - GitHub Pages
 - GitHub Actions (planned for automated safety monitoring)
-- Chart.js (planned for weight visualization)
+- Chart.js for weight visualization
 - Browser localStorage for feeding history persistence
 
 ## Development Status
@@ -38,13 +38,12 @@ Implemented or substantially developed:
 - Daily feeding history saved in localStorage.
 - History editing, completion toggles, and individual feeding deletion.
 - Support for displaying older saved feeding records.
+- Weight tracking and visualization.
 
 In progress:
 - Synchronizing changes between today's History records and the Tonight page.
-- Final testing and UI refinements for GitHub Issue #4.
 
 Planned:
-- Weight tracking and visualization.
 - Food product library and evidence-based safety monitoring.
 - Health journal and dietary observations.
 - Data export and import.
@@ -66,7 +65,7 @@ Safety classifications will be evidence-based and linked to identifiable sources
 
 ## Hosting
 
-The application runs on GitHub Pages and be accessible from an iPhone browser or Home Screen.
+The application runs on GitHub Pages.
 
 ## License
 
