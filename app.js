@@ -1013,14 +1013,8 @@ function displayDryFoodCalculator() {
         }
 
         if (wetFeedings[pet.id].length === 0) {
-            const dryCalories = calculateDryFoodCalories(
-                feedingData[pet.id]
-            );
-
-            const remainingCalories = Math.max(
-                0,
-                pet.dailyCalories - dryCalories
-            );
+            const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
+            const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
 
             const override = wetFoodOverrides[pet.id];
             const type = override?.type || wetFoodSelect.value;
@@ -1044,6 +1038,7 @@ function displayDryFoodCalculator() {
                 );
             }
         }
+        
         const section = document.createElement("div");
         section.className = "pet-feeding";
 
@@ -1233,6 +1228,30 @@ function displayDryFoodCalculator() {
 
             const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
             const remainingCalories = Math.max(0, pet.dailyCalories - dryCalories);
+
+            const firstWetFeeding = wetFeedings[pet.id]?.[0];
+
+            if (firstWetFeeding && !firstWetFeeding.completed) {
+
+                const override = wetFoodOverrides[pet.id];
+                const type = override?.type || wetFoodSelect.value;
+                const flavor = override?.flavor || proteinSelect.value;
+                
+                const recommended = calculateWetFood(
+                    pet,
+                    remainingCalories,
+                    type,
+                    flavor
+                );
+
+                if (recommended) {
+                    firstWetFeeding.type = type;
+                    firstWetFeeding.flavor = flavor;
+                    firstWetFeeding.grams = recommended.grams;
+                    firstWetFeeding.calories = recommended.calories;
+                }
+            }
+            
             const consumedWetCalories = (wetFeedings[pet.id] || []).reduce(
                  (total, feeding) => {
                     if (!feeding.completed) return total;
@@ -1241,7 +1260,8 @@ function displayDryFoodCalculator() {
                  }, 
                  0 
                 );
-            const totalConsumedCalories = dryCalories + consumedWetCalories;
+            const totalConsumedCalories = dryCalories + consumedWetCalories;          
+            
             /* Calculate how many calories pet has consumed over daily target */
             const excessCalories = Math.max(0, totalConsumedCalories - pet.dailyCalories);
 
@@ -1326,7 +1346,26 @@ function displayDryFoodCalculator() {
                     : wetFoodSelect.value;
 
                 /* Preserve recorded meal in saved data even when eaten checkbox is unchecked */
-                const wetFood = wetFoodEaten[pet.id] && wetFoodRecordedMeal[pet.id]
+                const completedFirstFeeding = wetFeedings[pet.id]?.[0];
+
+                const wetFood = completedFirstFeeding?.completed 
+                    ? (
+                        wetFoodRecordedMeal[pet.id] || 
+                        calculateWetFood(
+                            pet,
+                            completedFirstFeeding.calories,
+                            completedFirstFeeding.type,
+                            completedFirstFeeding.flavor
+                        )
+                    )
+                    : calculateWetFood(
+                        pet,
+                        remainingCalories,
+                        selectWetFoodType,
+                        selectedProtein
+                    );
+                
+                wetFoodEaten[pet.id] && wetFoodRecordedMeal[pet.id]
                     ? wetFoodRecordedMeal[pet.id]
                     : calculateWetFood(
                         pet,
@@ -1924,7 +1963,7 @@ function updateFeedingHistoryRecord(date, petId, feedingType, feedingId, changes
     const dayRecord = history.find(record => record.date === date);
 
     if (!dayRecord) {
-        console.error("Feeding history date not found:", date);
+        /* console.error("Feeding history date not found:", date); */
         return false;
     }
 
@@ -1932,7 +1971,7 @@ function updateFeedingHistoryRecord(date, petId, feedingType, feedingId, changes
     const savedPet = savedPets.find(pet => pet.id === petId);
 
     if (!savedPet) {
-        console.error("Pet not found in feeding history:", petId);
+        /* console.error("Pet not found in feeding history:", petId); */
         return false;
     }
 
