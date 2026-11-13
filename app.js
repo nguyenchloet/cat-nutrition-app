@@ -1236,11 +1236,6 @@ function displayDryFoodCalculator() {
                 const override = wetFoodOverrides[pet.id];
                 const type = override?.type || wetFoodSelect.value;
                 const flavor = override?.flavor || proteinSelect.value;
-<<<<<<< HEAD
-
-=======
-                
->>>>>>> origin/main
                 const recommended = calculateWetFood(
                     pet,
                     remainingCalories,
@@ -1255,11 +1250,7 @@ function displayDryFoodCalculator() {
                     firstWetFeeding.calories = recommended.calories;
                 }
             }
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> origin/main
             const consumedWetCalories = (wetFeedings[pet.id] || []).reduce(
                  (total, feeding) => {
                     if (!feeding.completed) return total;
