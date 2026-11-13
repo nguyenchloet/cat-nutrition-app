@@ -1038,6 +1038,7 @@ function displayDryFoodCalculator() {
                 );
             }
         }
+        
         const section = document.createElement("div");
         section.className = "pet-feeding";
 
@@ -1235,7 +1236,11 @@ function displayDryFoodCalculator() {
                 const override = wetFoodOverrides[pet.id];
                 const type = override?.type || wetFoodSelect.value;
                 const flavor = override?.flavor || proteinSelect.value;
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> origin/main
                 const recommended = calculateWetFood(
                     pet,
                     remainingCalories,
@@ -1250,7 +1255,11 @@ function displayDryFoodCalculator() {
                     firstWetFeeding.calories = recommended.calories;
                 }
             }
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> origin/main
             const consumedWetCalories = (wetFeedings[pet.id] || []).reduce(
                  (total, feeding) => {
                     if (!feeding.completed) return total;
@@ -1415,8 +1424,7 @@ function displayDryFoodCalculator() {
         overrideSelect.innerHTML = `
         <option value="shared">Use shared selection</option>
         <option value="homemade">Homemade (Balance.IT)</option>
-        <option value="canned">Canned</option>
-`;
+        <option value="canned">Canned</option>`;
 
         overrideSelect.value = wetFoodOverrides[pet.id]?.type || "shared";
 
@@ -2076,20 +2084,38 @@ function deleteFeedingHistoryRecord(date, petId, feedingType, feedingId) {
     return true;
 }
 
+/* Show saved feeding history */
 function displayFeedingHistory() {
     const container = document.getElementById("feedingHistory");
     const history = getFeedingHistory();
 
+    const selectedPet = document.getElementById("historyPetFilter").value;
+    const startDate = document.getElementById("historyStartDate").value;
+    const endDate = document.getElementById("historyEndDate").value;
+
+    const filteredHistory = history.filter(record =>
+        (!startDate || record.date >= startDate) &&
+        (!endDate || record.date <= endDate) && 
+        (
+            selectedPet === "all" ||
+            (record.pets || record.cats || []).some(
+                pet => pet.id === selectedPet
+            )
+        )
+    );
+
     container.replaceChildren();
 
-    if (history.length === 0) {
+    if (filteredHistory.length === 0) {
         const message = document.createElement("p");
-        message.textContent = "No feeding history saved yet.";
+        message.textContent = history.length === 0 
+            ? "No feeding history saved yet."
+            : "No feeding records match your filters";
         container.appendChild(message);
         return;
     }
 
-    history.forEach(record => {
+    filteredHistory.forEach(record => {
         const card = document.createElement("div");
         card.className = "history-card";
 
@@ -2108,7 +2134,11 @@ function displayFeedingHistory() {
 
         const savedPets = record.pets || record.cats || [];
 
-        savedPets.forEach(pet => {
+        const visiblePets = selectedPet === "all"
+            ? savedPets
+            : savedPets.filter(pet => pet.id === selectedPet);
+
+        visiblePets.forEach(pet => {
             const summary = document.createElement("p");
 
             const historicalDryCalories = pet.dryCalories ??
@@ -2509,8 +2539,34 @@ function displayFeedingHistory() {
     });
 }
 
+/* Filter the feeding history results */
+function initializeFeedingHistoryFilters() {
+    const petFilter = document.getElementById("historyPetFilter");
+    const startDate = document.getElementById("historyStartDate");
+    const endDate = document.getElementById("historyEndDate");
+    const clearButton = document.getElementById("clearHistoryFilters");
+
+    pets.forEach(pet => {
+        const option = document.createElement("option");
+        option.value = pet.id;
+        option.textContent = pet.name;
+        petFilter.appendChild(option);
+    });
+
+    document.getElementById("applyHistoryFilters")
+        .addEventListener("click", displayFeedingHistory);
+    
+    clearButton.addEventListener("click", () => {
+        petFilter.value = "all";
+        startDate.value = "";
+        endDate.value = "";
+        displayFeedingHistory();
+    });
+}
+
 loadTodaysFeedings();
 displayDryFoodCalculator();
 updateAutomaticFeedings();
 displayDryFoodCalculator();
+initializeFeedingHistoryFilters();
 displayFeedingHistory();
