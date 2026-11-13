@@ -1223,7 +1223,7 @@ function displayDryFoodCalculator() {
         const recipeIngredients = document.createElement("ul");
 
         dinnerResult.className = 'calculated-total';
-       
+
         function calculate() {
 
             const dryCalories = calculateDryFoodCalories(feedingData[pet.id]);
@@ -1236,7 +1236,11 @@ function displayDryFoodCalculator() {
                 const override = wetFoodOverrides[pet.id];
                 const type = override?.type || wetFoodSelect.value;
                 const flavor = override?.flavor || proteinSelect.value;
+<<<<<<< HEAD
+
+=======
                 
+>>>>>>> origin/main
                 const recommended = calculateWetFood(
                     pet,
                     remainingCalories,
@@ -1251,7 +1255,11 @@ function displayDryFoodCalculator() {
                     firstWetFeeding.calories = recommended.calories;
                 }
             }
+<<<<<<< HEAD
+
+=======
             
+>>>>>>> origin/main
             const consumedWetCalories = (wetFeedings[pet.id] || []).reduce(
                  (total, feeding) => {
                     if (!feeding.completed) return total;
@@ -1340,7 +1348,6 @@ function displayDryFoodCalculator() {
                 const selectedProtein = override
                     ? override.flavor
                     : proteinSelect.value;
-
                 const selectWetFoodType = override
                     ? override.type
                     : wetFoodSelect.value;
@@ -1667,7 +1674,6 @@ function displayDryFoodCalculator() {
             const override = wetFoodOverrides[pet.id];
             const type = override?.type || wetFoodSelect.value;
             const flavor = override?.flavor || proteinSelect.value;
-
             const recommended = calculateWetFood(
                 pet,
                 remainingCalories,
@@ -1690,7 +1696,6 @@ function displayDryFoodCalculator() {
         });
 
         renderWetFeedingRows();
-
 
         const recipeBox = document.createElement("div");
         recipeBox.className = "recipe-box";
