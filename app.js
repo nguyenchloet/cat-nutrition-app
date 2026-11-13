@@ -150,6 +150,7 @@ weightForm.addEventListener("submit", event => {
 
     displayWeightHistory();
     displayWeightChart();
+    displayWeighInReminders();
     alert("Weight record saved successfully.");
 });
 
@@ -173,7 +174,7 @@ function updateWeightRecord(recordId, changes) {
 
     displayWeightHistory();
     displayWeightChart();
-
+    displayWeighInReminders();
     return true;
 }
 
@@ -237,6 +238,177 @@ function exportWeightHistory() {
         link.remove();
 
         URL.revokeObjectURL(url);
+}
+
+/* Weigh-in reminder preference logic */
+const REMINDER_SETTINGS_KEY = "weighInReminderSettings";
+
+const weighInReminderEnabled = document.getElementById("weighInReminderEnabled");
+const weighInReminderDay = document.getElementById("weighInReminderDay");
+const weighInReminderSettings = document.getElementById("weighInReminderSettings");
+
+function getWeighInReminderSettings() {
+    const saved = JSON.parse(
+        localStorage.getItem(REMINDER_SETTINGS_KEY) || "{}"
+    );
+
+    return {
+        enabled: saved.enabled !== false,
+        day: Number.isInteger(saved.day) && saved.day >= 1 && saved.day <= 31
+            ? saved.day
+            : 1,
+        dismissed: saved.dismissed || {}
+    };
+}
+
+function saveWeighInReminderSettings(settings) {
+    localStorage.setItem(
+        REMINDER_SETTINGS_KEY,
+        JSON.stringify(settings)
+    );
+}
+
+function initializeWeighInReminderSettings() {
+    for (let day = 1; day <= 31; day++) {
+        const option = document.createElement("option");
+        option.value = String(day);
+        option.textContent = String(day);
+        weighInReminderDay.appendChild(option);
+    }
+    const settings = getWeighInReminderSettings();
+
+    weighInReminderEnabled.checked = settings.enabled;
+    weighInReminderDay.value = String(settings.day);
+    weighInReminderSettings.hidden = !settings.enabled;
+
+    weighInReminderEnabled.addEventListener("change", () => {
+        const updated = getWeighInReminderSettings();
+        updated.enabled = weighInReminderEnabled.checked;
+
+        /* toggle weigh-in reminders to reset dismissals */
+        if (updated.enabled) {
+            updated.dismissed = {};
+        }
+
+        saveWeighInReminderSettings(updated);
+
+        weighInReminderSettings.hidden = !updated.enabled;
+        displayWeighInReminders();
+    });
+
+    weighInReminderDay.addEventListener("change", () => {
+        const updated = getWeighInReminderSettings();
+        updated.day = Number(weighInReminderDay.value);
+
+        saveWeighInReminderSettings(updated);
+        displayWeighInReminders();
+    });
+}
+
+/* Get last weigh in to calculate weigh in alert scheduling */
+function getLastWeighIn(petId) {
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    const petRecords = history.filter(record =>
+        record.petId === petId && record.date
+    );
+
+    if (petRecords.length === 0) {
+        return null;
+    }
+
+    petRecords.sort((a,b) => b.date.localeCompare(a.date));
+
+    return petRecords[0].date;
+}
+
+function displayWeighInReminders() {
+    const container = document.getElementById("weighInReminders");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const settings = getWeighInReminderSettings();
+    if (!settings.enabled) {
+        const message = document.createElement("p");
+        message.textContent = "Monthly weigh-in reminders are disabled.";
+        container.appendChild(message);
+        return;
+    }
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+    // Clamp the selected day to the last day of shorter months.
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    const reminderDay = Math.min(settings.day, lastDayOfMonth);
+
+    const reminderDate = new Date(year, month, reminderDay);
+    const reminderDateText = reminderDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric"
+    });
+
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    pets.forEach(pet => {
+        const monthlyRecords = history
+            .filter(record =>
+                record.petId === pet.id &&
+                typeof record.date === "string" &&
+                record.date.startsWith(`${monthKey}-`)
+            )
+            .sort((a,b) => b.date.localeCompare(a.date));
+
+            const latest = monthlyRecords[0];
+
+        const dismissalKey = `${monthKey}:${pet.id}`;
+
+        const dismissed = Boolean(settings.dismissed[dismissalKey]);
+
+        const reminder = document.createElement("div");
+        reminder.className = "weigh-in-reminder";
+
+        const message = document.createElement("p");
+
+        if (latest) {
+            message.textContent =
+                `${pet.name}: Complete — weighed ${latest.date}, ${latest.weight} ${latest.unit || "lb"}`;
+        } else if (dismissed) {
+            message.textContent = `${pet.name}: Dismissed this month`;
+        } else if (today.getDate() < reminderDay) {
+            message.textContent =
+                `${pet.name}: Not weighed this month — due ${reminderDateText}`;
+        } else {
+            message.textContent = `${pet.name}: Weigh-in due`;
+        }
+
+        reminder.appendChild(message);
+
+        if (!latest && !dismissed && today.getDate() >= reminderDay) {
+            const dismissButton = document.createElement("button");
+            dismissButton.type = "button";
+            dismissButton.textContent = "Dismiss";
+
+            dismissButton.addEventListener("click", () => {
+                const updated = getWeighInReminderSettings();
+
+                updated.dismissed[dismissalKey] = true;
+
+                saveWeighInReminderSettings(updated);
+                displayWeighInReminders();
+            });
+
+            reminder.appendChild(dismissButton);
+        }
+        container.appendChild(reminder);
+    });
 }
 
 function displayWeightHistory() {
@@ -412,6 +584,7 @@ function deleteWeightRecord(recordId) {
 
     displayWeightHistory();
     displayWeightChart();
+    displayWeighInReminders();
 
     return true;
 }
@@ -589,6 +762,8 @@ document
 
 displayWeightChart();
 displayWeightHistory();
+initializeWeighInReminderSettings();
+displayWeighInReminders();
 
 const recipes = {
   chicken: {

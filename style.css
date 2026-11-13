@@ -897,6 +897,45 @@ main {
     margin: 6px 0;
 }
 
+#weighInReminders {
+    margin-top: 0.5rem;
+}
+
+.weigh-in-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.weigh-in-status:last-child {
+    border-bottom: none;
+}
+
+.weigh-in-reminder {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0.4rem;
+    border: 1px solid #e5e5e5;
+    margin: 1% 0;
+    border-radius: 10px;
+}
+
+.weigh-in-reminder p {
+    margin: 0;
+    flex: 1;
+}
+
+.weigh-in-reminder button {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.2rem 0.5rem;
+}
+
 @media (max-width: 600px) {
     .weight-history-table th,
     .weight-history-table td {
