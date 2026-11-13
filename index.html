@@ -54,7 +54,28 @@
             <section id="history" class="page">
                 <div class="card">
                     <h2>Meal History</h2>
-                    <p>Review your pets' saved daily feeding records.</p>
+
+                    <p>Review your pets' saved daily feeding records:</p>
+                    <div class="history-filters">
+                        <label for="historyPetFilter">Pet</label>
+                        <select id="historyPetFilter">
+                            <option value="all">All Pets</option>
+                        </select>
+
+                        <label for="historyStartDate">From:</label>
+                        <input type="date" id="historyStartDate">
+
+                        <label for="historyEndDate">To:</label>
+                        <input type="date" id="historyEndDate">
+                       
+                        <button type="button" id="applyHistoryFilters">
+                            Apply
+                        </button>
+                        <button type="button" id="clearHistoryFilters">
+                            Clear filters
+                        </button>
+                    </div>
+
                     <div id="feedingHistory"></div>
                 </div>
             </section>
