@@ -1933,7 +1933,14 @@ function displayFeedingHistory() {
             dryHeading.textContent = "Dry Food";
             details.appendChild(dryHeading);
 
+            if (!pet.dryFeedings || pet.dryFeedings.length === 0) {
+                const message = document.createElement("p");
+                message.textContent = "No dry feedings recorded.";
+                details.appendChild(message);
+            }
+
             (pet.dryFeedings || []).forEach(feeding => {
+
                 const feedingItem = document.createElement("p");
 
                 const calories = feeding.calories ??
@@ -2081,7 +2088,13 @@ function displayFeedingHistory() {
             wetHeading.textContent = "Wet Food";
             details.appendChild(wetHeading);
 
-            if (Array.isArray(pet.wetFeedings) && pet.wetFeedings.length > 0) {
+            if (Array.isArray(pet.wetFeedings)) {
+
+                if (pet.wetFeedings.length === 0) {
+                    const message = document.createElement("p");
+                    message.textContent = "No wet feedings recorded.";
+                    details.appendChild(message);
+                }
                 pet.wetFeedings.forEach((feeding, index) => {
                     const feedingItem = document.createElement("p");
 
@@ -2256,7 +2269,11 @@ function displayFeedingHistory() {
 
             if (
                 pet.wetFood?.type === "homemade" &&
-                pet.wetFood.ingredients?.length > 0
+                pet.wetFood.ingredients?.length > 0 &&
+                (
+                    !Array.isArray(pet.wetFeedings) ||
+                    pet.wetFeedings.length > 0
+                )
             ) {
                 const ingredientsHeading = document.createElement("h5");
                 ingredientsHeading.textContent = "Recipe Ingredients";
