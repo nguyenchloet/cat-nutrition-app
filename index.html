@@ -61,6 +61,27 @@
 
             <section id="weights" class="page">
                 <div class="card">
+                    <h3>Weigh-In Reminders</h3>
+                    <label for="weighInReminderEnabled">
+                        <input
+                            type="checkbox"
+                            id="weighInReminderEnabled"
+                            checked
+                        >
+                        Enable monthly weigh-in reminders
+                    </label>
+
+                    <div id="weighInReminderSettings">
+                        <label for="weighInReminderDay">
+                            Remind me on day:
+                        </label>
+
+                        <select id="weighInReminderDay"></select>
+                        <span>of each month</span>
+                    </div>
+                    <div id="weighInReminders" aria-live=""polite></div>
+                </div>
+                <div class="card">
                     <h2>Weight Tracking</h2>
                     <details class="weight-record-disclosure">
                         <summary>Add Weight Record</summary>
