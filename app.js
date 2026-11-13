@@ -153,6 +153,30 @@ weightForm.addEventListener("submit", event => {
     alert("Weight record saved successfully.");
 });
 
+/* Edit and save weight record */
+function updateWeightRecord(recordId, changes) {
+    const history = JSON.parse(localStorage.getItem("weightHistory") || "[]");
+
+    const record = history.find(item => item.id === recordId);
+
+    if (!record) {
+        console.error("Weight record not found.");
+        return false;
+    }
+
+    Object.assign(record, changes);
+
+    localStorage.setItem(
+        "weightHistory",
+        JSON.stringify(history)
+    );
+
+    displayWeightHistory();
+    displayWeightChart();
+
+    return true;
+}
+
 function displayWeightHistory() {
     const container = document.getElementById("weightHistory");
     const displayUnit = document.getElementById("chartWeightUnit").value;
@@ -178,7 +202,7 @@ function displayWeightHistory() {
     const header = document.createElement("thead");
     const headerRow = document.createElement("tr");
 
-    ["Date", "Pet", "Weight", "Notes"].forEach(label => {
+    ["Date", "Pet", "Weight", "Notes", "Actions"].forEach(label => {
         const th = document.createElement("th");
         th.textContent = label;
         headerRow.appendChild(th);
@@ -208,12 +232,117 @@ function displayWeightHistory() {
         const notesCell = document.createElement("td");
         notesCell.textContent = record.notes || "—";
 
-        row.append(dateCell, petCell, weightCell, notesCell);
+        const actionsCell = document.createElement("td");
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "Edit"; 
+        editButton.addEventListener("click", () => {
+            const newWeightInput = prompt(`Enter a new weight for ${pet?.name || "this pet"} (${displayUnit}):`,
+                convertWeight(Number(record.weight), "lb", displayUnit).toFixed(2));
+
+            if (newWeightInput === null) return;
+            if (
+                newWeightInput.trim() === "" ||
+                !Number.isFinite(Number(newWeightInput)) ||
+                Number(newWeightInput) <= 0
+            ) {
+                alert("Please enter a valid weight greater than zero.");
+                return;
+            }
+
+            const newWeight = convertWeight(
+                Number(newWeightInput),
+                displayUnit,
+                "lb"
+            );
+
+            const newDate = prompt(
+                "Enter the weigh-in date (YYYY-MM-DD):", 
+                record.date
+            );
+
+            if (newDate === null) return;
+
+            const today = new Date().toLocaleDateString("en-CA");
+            const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+            const parsedDate = new Date(`${newDate}T12:00:00`);
+
+            if (
+                !datePattern.test(newDate) ||
+                Number.isNaN(parsedDate.getTime()) ||
+                parsedDate.toLocaleDateString("en-CA") !== newDate ||
+                newDate > today
+            ) {
+                alert("Enter a valid date that is not in the future.");
+                return;
+            }
+
+            const newNotes = prompt(
+                "Enter notes for this weight record:",
+                record.notes || ""
+            );
+
+            if (newNotes === null) return;
+
+            updateWeightRecord(record.id, {
+                weight: newWeight,
+                date: newDate,
+                notes: newNotes.trim()
+            });
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.textContent = "Delete";
+
+        deleteButton.addEventListener("click", () => {
+            const confirmed = confirm(
+                `Permanently delete ${pet?.name || "this pet"}'s weight record from ${record.date}?`
+            );
+            if (!confirmed) return;
+
+            const deleted = deleteWeightRecord(record.id);
+
+            if (!deleted) {
+                alert("Unable to delete the weight record.");
+            }
+        });
+
+        actionsCell.append(editButton, deleteButton);
+
+        row.append(dateCell, petCell, weightCell, notesCell, actionsCell);
         tbody.appendChild(row);
+
     });
 
     table.appendChild(tbody);
     container.appendChild(table);
+}
+
+function deleteWeightRecord(recordId) {
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    const updatedHistory = history.filter(
+        record => record.id !== recordId
+    );
+
+    if (updatedHistory.length === history.length) {
+        console.error("Weight record not found:", recordId);
+        return false;
+    }
+
+    localStorage.setItem(
+        "weightHistory",
+        JSON.stringify(updatedHistory)
+    );
+
+    displayWeightHistory();
+    displayWeightChart();
+
+    return true;
 }
 
 let weightChart = null;
