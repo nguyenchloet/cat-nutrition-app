@@ -177,6 +177,68 @@ function updateWeightRecord(recordId, changes) {
     return true;
 }
 
+/* export weight history to csv */
+function exportWeightHistory() {
+    const history = JSON.parse(
+        localStorage.getItem("weightHistory") || "[]"
+    );
+
+    const exportUnit = document.getElementById("chartWeightUnit").value;
+
+    if (history.length === 0) {
+        alert("No weight record available to export.");
+        return;
+    }
+
+    const headers = ["Date", "Pet", `Weight (${exportUnit})`, "Notes"];
+
+    const escapeCSV = value => {
+        const text = String(value ?? "");
+        return `"${text.replace(/"/g, '""')}`;
+    };
+    const rows = history
+        .sort((a,b) => a.date.localeCompare(b.date))
+        .map(record => {
+            const pet = pets.find(p => p.id === record.petId);
+
+            const convertedWeight = convertWeight(
+                Number(record.weight),
+                "lb",
+                exportUnit
+            );
+
+            return [
+                record.date,
+                pet?.name || record.petId,
+                convertedWeight.toFixed(2),
+                record.notes
+            ];
+        });
+
+        const csv = [
+            headers.map(escapeCSV).join(","),
+            ...rows.map(row => row.map(escapeCSV).join(","))
+        ].join("\r\n");
+
+        const blob = new Blob(["\uFEFF", csv], {
+            type: "text/csv;charset=utf-8;"
+        });
+
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+
+        const currentDate = new Date().toLocaleDateString("en-CA");
+        link.download = `pet-weight-history-${exportUnit}-${currentDate}.csv`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+}
+
 function displayWeightHistory() {
     const container = document.getElementById("weightHistory");
     const displayUnit = document.getElementById("chartWeightUnit").value;
@@ -318,6 +380,15 @@ function displayWeightHistory() {
 
     table.appendChild(tbody);
     container.appendChild(table);
+
+    const exportButton = document.createElement("button");
+    exportButton.type = "button";
+    exportButton.textContent = "Export Weight History (CSV)";
+    exportButton.className = "export-weight-button";
+
+    exportButton.addEventListener("click", exportWeightHistory);
+
+    container.appendChild(exportButton);
 }
 
 function deleteWeightRecord(recordId) {
