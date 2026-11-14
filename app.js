@@ -1925,13 +1925,18 @@ const petList = document.getElementById("pet-list");
 const addPetButton = document.getElementById("add-pet-button");
 const cancelPetButton = document.getElementById("cancel-pet-button");
 
+let editingPetId = null;
+
 addPetButton.addEventListener("click", () => {
+    editingPetId = null;
+
     petForm.reset();
     petForm.hidden = false;
     document.getElementById("pet-form-title").textContent = "Add Pet";
 });
 
 cancelPetButton.addEventListener("click", () => {
+    editingPetId = null; 
     petForm.reset();
     petForm.hidden = true;
 });
@@ -1947,19 +1952,33 @@ petForm.addEventListener("submit", event => {
         return;
     }
 
-    const newPet = {
-        id: crypto.randomUUID(),
-        name,
-        species,
-        birthdate: "",
-        dailyCalories: 0
-    };
+    if (editingPetId !== null) {
+        // Update existing pet without changing its ID
+        const pet = pets.find(pet => pet.id === editingPetId);
 
-    pets.push(newPet);
+        if (!pet) {
+            alert("Pet not found");
+            return;
+        }
+
+        pet.name = name;
+        pet.species = species;
+    } else {
+        const newPet = {
+                id: crypto.randomUUID(),
+                name,
+                species,
+                birthdate: "",
+                dailyCalories: 0
+            };
+
+            pets.push(newPet);
+            wetFeedings[newPet.id] = [];
+    }
+    
     savePets();
 
-    wetFeedings[newPet.id] = [];
-    
+    editingPetId = null;
     petForm.reset();
     petForm.hidden = true;
 
@@ -1977,7 +1996,18 @@ function displayPetList() {
         const name = document.createElement("span");
         name.textContent = `${pet.name} (${pet.species})`;
 
-        row.appendChild(name);
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "Edit";
+
+        editButton.addEventListener("click", () => {
+            editingPetId = pet.id;
+            document.getElementById("pet-name").value = pet.name;
+            document.getElementById("pet-species").value = pet.species;
+            document.getElementById("pet-form-title").textContent = `Edit ${pet.name}`;
+            petForm.hidden = false;
+        });
+        row.append(name, editButton);
         petList.appendChild(row);
     });
 }
