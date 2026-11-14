@@ -798,7 +798,7 @@ displayWeighInReminders();
 
 const recipes = {
   chicken: {
-    Annie: {
+    annie: {
        id: "14940796",
             calories: 235.9,
             ingredients: [
@@ -808,7 +808,7 @@ const recipes = {
                 { name: "Balance IT Carnivore Blend", grams: 2.84 }
             ]
     },
-    Gus: {
+    gus: {
        id: "14940974",
             calories: 262.1,
             ingredients: [
@@ -821,7 +821,7 @@ const recipes = {
     }
   },
   turkey: {
-    Annie: {
+    annie: {
       id: "14941082",
       calories: 241.6,
       ingredients: [
@@ -831,7 +831,7 @@ const recipes = {
         { name: "Balance IT Carnivore Blend", grams: 3.2 }
       ]
     },
-    Gus: {
+    gus: {
       id: "14941056",
       calories: 261.3,
       ingredients: [
@@ -905,7 +905,7 @@ function calculateWetFood(pet, remainingCalories, type, flavor) {
     }
 
     if (type === "homemade") {
-        const recipe = recipes[flavor]?.[pet.name];
+        const recipe = recipes[flavor]?.[pet.id];
 
         if (!recipe) {
             return null;
@@ -967,7 +967,7 @@ function calculateWetServingCalories(pet, type, flavor, grams) {
     }
 
     if (type === "homemade") {
-        const recipe = recipes[flavor]?.[pet.name];
+        const recipe = recipes[flavor]?.[pet.id];
 
         /* ne exception when new pet doesn't have predefined homemade recipe */
         if (!recipe) return 0;
@@ -2358,6 +2358,9 @@ function displayFeedingHistory() {
             : savedPets.filter(pet => pet.id === selectedPet);
 
         visiblePets.forEach(pet => {
+            const currentPet = pets.find(p => p.id === pet.id);
+            const displayName = currentPet?.name ?? pet.name;
+
             const summary = document.createElement("p");
 
             const historicalDryCalories = pet.dryCalories ??
@@ -2378,7 +2381,7 @@ function displayFeedingHistory() {
                 (historicalDryCalories + historicalWetCalories);
 
             summary.textContent =
-                `${pet.name}: ${consumedCalories.toFixed(1)} / ${pet.dailyCalories.toFixed(1)} kcal consumed`;
+                `${displayName}: ${consumedCalories.toFixed(1)} / ${pet.dailyCalories.toFixed(1)} kcal consumed`;
 
             const details = document.createElement("details");
 
@@ -2427,7 +2430,7 @@ function displayFeedingHistory() {
 
                 editDryGramsButton.addEventListener("click", () => {
                     const input = prompt(
-                        `Enter the new dry food quantity in grams for ${pet.name}, feeding ${feeding.id}:`,
+                        `Enter the new dry food quantity in grams for ${displayName}, feeding ${feeding.id}:`,
                         feeding.grams.toFixed(1)
                     );
 
