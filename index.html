@@ -185,6 +185,27 @@
                 <div class="card">
                     <h2>Settings</h2>
                     <p>Manage your pets and app preferences.</p>
+                    <h3>Manage Pets</h3>
+                    <div id="pet-list"></div>
+                    <button type="button" id="add-pet-button">Add Pet</button>
+                  
+                    <form id="pet-form" hidden>
+                        <h4 id="pet-form-title">Add Pet</h4>
+                        <label for="pet-name">Name</label>
+                        <input
+                            type="text"
+                            id="pet-name"
+                            required
+                        >
+
+                        <label for="pet-species">Species</label>
+                        <select id="pet-species">
+                            <option value="cat">Cat</option>
+                            <option value="dog">Dog</option>
+                        </select>
+                        <button type="submit">Save Pet</button>
+                        <button type="button" id="cancel-pet-button">Cancel</button>
+                    </form>
                 </div>
             </section>
         </main>
