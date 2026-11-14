@@ -60,10 +60,41 @@ wetFoodSelect.addEventListener("change", updateWetFoodFlavors);
 updateWetFoodFlavors();
 
 /* Data for pets and their recipes 20261106 */
-const pets = [
+
+const DEFAULT_PETS = [
     { id: "annie", name: "Annie", species: "cat", birthdate: "2017-12-24", dailyCalories: 235.9 },
     { id: "gus", name: "Gus", species: "cat", birthdate: "2023-04-10", dailyCalories: 262.1 }
 ];
+
+const PETS_STORAGE_KEY = "pets";
+
+function loadPets() {
+    const saved = localStorage.getItem(PETS_STORAGE_KEY);
+
+    if (saved === null) {
+        return DEFAULT_PETS.map(pet => ({...pet}));
+    }
+
+    try {
+        const parsed = JSON.parse(saved);
+
+        if (!Array.isArray(parsed)) {
+            throw new Error("Saved pets must be an array.");
+        }
+
+        return parsed;
+    } catch (error) {
+        console.error("Unable to load saved pet profiles:", error);
+        return DEFAULT_PETS.map(pet => ({...pet}));
+    }
+}
+
+function savePets() {
+    localStorage.setItem(PETS_STORAGE_KEY, JSON.stringify(pets));
+}
+
+let pets = loadPets();
+
 
 const weightForm = document.getElementById("weightForm");
 const weightPetSelect = document.getElementById("weightPet");
@@ -767,7 +798,7 @@ displayWeighInReminders();
 
 const recipes = {
   chicken: {
-    Annie: {
+    annie: {
        id: "14940796",
             calories: 235.9,
             ingredients: [
@@ -777,7 +808,7 @@ const recipes = {
                 { name: "Balance IT Carnivore Blend", grams: 2.84 }
             ]
     },
-    Gus: {
+    gus: {
        id: "14940974",
             calories: 262.1,
             ingredients: [
@@ -790,7 +821,7 @@ const recipes = {
     }
   },
   turkey: {
-    Annie: {
+    annie: {
       id: "14941082",
       calories: 241.6,
       ingredients: [
@@ -800,7 +831,7 @@ const recipes = {
         { name: "Balance IT Carnivore Blend", grams: 3.2 }
       ]
     },
-    Gus: {
+    gus: {
       id: "14941056",
       calories: 261.3,
       ingredients: [
@@ -874,7 +905,12 @@ function calculateWetFood(pet, remainingCalories, type, flavor) {
     }
 
     if (type === "homemade") {
-        const recipe = recipes[flavor][pet.name];
+        const recipe = recipes[flavor]?.[pet.id];
+
+        if (!recipe) {
+            return null;
+        }
+
         const scaleFactor = remainingCalories / recipe.calories;
 
         const ingredients = recipe.ingredients.map(ingredient => ({
@@ -931,8 +967,9 @@ function calculateWetServingCalories(pet, type, flavor, grams) {
     }
 
     if (type === "homemade") {
-        const recipe = recipes[flavor]?.[pet.name];
+        const recipe = recipes[flavor]?.[pet.id];
 
+        /* ne exception when new pet doesn't have predefined homemade recipe */
         if (!recipe) return 0;
 
         const recipeGrams = recipe.ingredients.reduce(
@@ -1010,6 +1047,10 @@ function displayDryFoodCalculator() {
               { id: 1, grams: 10, completed: false, method: "auto", time: "04:45" },
               { id: 2, grams: 10, completed: false, method: "manual", time: "10:30" }
           ];
+        }
+
+        if (!wetFeedings[pet.id]) {
+            wetFeedings[pet.id] = [];
         }
 
         if (wetFeedings[pet.id].length === 0) {
@@ -1825,8 +1866,8 @@ saveFeedingsButton.addEventListener("click", () => {
                 dryCalories,
                 wetFeedings: savedWetFeedings,
                 usesSharedWetFood: !override,
-                wetFoodType: wetFood.type,
-                wetFoodFlavor: wetFood.flavor,
+                wetFoodType: wetFood?.type ?? wetFoodType,
+                wetFoodFlavor: wetFood?.flavor ?? wetFoodFlavor,
                 wetFood,
 
                 /* wetFoodCompleted is name used in saved data format, while wetFoodEaten is used by JS code */
@@ -1876,6 +1917,193 @@ saveFeedingsButton.addEventListener("click", () => {
     saveFeedingsButton.textContent = "Feedings Saved";
     alert("Today's feeding record was saved successfully.");
 });
+
+/* Settings: add a pet */
+
+const petForm = document.getElementById("pet-form");
+const petList = document.getElementById("pet-list");
+const addPetButton = document.getElementById("add-pet-button");
+const cancelPetButton = document.getElementById("cancel-pet-button");
+
+let editingPetId = null;
+
+addPetButton.addEventListener("click", () => {
+    editingPetId = null;
+
+    petForm.reset();
+    petForm.hidden = false;
+    document.getElementById("pet-form-title").textContent = "Add Pet";
+});
+
+cancelPetButton.addEventListener("click", () => {
+    editingPetId = null; 
+    petForm.reset();
+    petForm.hidden = true;
+});
+
+petForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const name = document.getElementById("pet-name").value.trim();
+    const species = document.getElementById("pet-species").value;
+
+    if (!name) {
+        alert("Please enter a pet name.");
+        return;
+    }
+
+    if (editingPetId !== null) {
+        // Update existing pet without changing its ID
+        const pet = pets.find(pet => pet.id === editingPetId);
+
+        if (!pet) {
+            alert("Pet not found");
+            return;
+        }
+
+        pet.name = name;
+        pet.species = species;
+    } else {
+        const newPet = {
+                id: crypto.randomUUID(),
+                name,
+                species,
+                birthdate: "",
+                dailyCalories: 0
+            };
+
+            pets.push(newPet);
+            wetFeedings[newPet.id] = [];
+    }
+    
+    savePets();
+
+    editingPetId = null;
+    petForm.reset();
+    petForm.hidden = true;
+
+    displayPetList();
+    refreshPetViews();
+});
+
+function removePet(petId) {
+    const pet = pets.find(pet => pet.id === petId);
+
+    if (!pet) {
+        alert("Pet not found.");
+        return;
+    }
+
+    const confirmed = confirm(
+        `Remove ${pet.name} from active tracking? ` +
+        "Their saved feeding and weight history will be preserved."       
+    );
+
+    if (!confirmed) return;
+
+    pets = pets.filter(pet => pet.id !== petId);
+    savePets();
+
+    // Clear today's in-memory tracking data
+    delete feedingData[petId];
+    delete wetFeedings[petId];
+    delete wetFoodOverrides[petId];
+    delete wetFoodEaten[petId];
+    delete wetFoodRecordedMeal[petId];
+
+    // Reset form if this pet was not being edited
+    if (editingPetId === petId) {
+        editingPetId = null;
+        petForm.reset();
+        petForm.hidden = true;
+    }
+
+    displayPetList();
+    refreshPetViews();
+}
+
+function displayPetList() {
+    petList.replaceChildren();
+
+    pets.forEach(pet => {
+        const row = document.createElement("div");
+        row.className = "pet-settings-row";
+
+        const name = document.createElement("span");
+        name.textContent = `${pet.name} (${pet.species})`;
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "Edit";
+
+        editButton.addEventListener("click", () => {
+            editingPetId = pet.id;
+            document.getElementById("pet-name").value = pet.name;
+            document.getElementById("pet-species").value = pet.species;
+            document.getElementById("pet-form-title").textContent = `Edit ${pet.name}`;
+            petForm.hidden = false;
+        });
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "Remove";
+
+        removeButton.setAttribute("aria-label", `Remove ${pet.name} from active tracking`);
+
+        removeButton.addEventListener("click", () => {
+            removePet(pet.id);
+        });
+
+        row.append(name, editButton, removeButton);
+        petList.appendChild(row);
+    });
+}
+
+function refreshPetViews() {
+    // Refresh pet-dependent interfaces after profile change
+    updatePetSelectOptions();
+    displayDryFoodCalculator();
+    displayWeightHistory();
+    displayWeightChart();
+    displayWeighInReminders();
+    displayFeedingHistory();
+}
+
+function updatePetSelectOptions() {
+    const selectors = [
+        weightPetSelect,
+        weightChartFilter,
+        document.getElementById("historyPetFilter")
+    ];
+
+    selectors.forEach(select => {
+        const previousValue = select.value;
+        const hasAllOption = select.id !== "weightPet";
+
+        select.replaceChildren();
+
+        if (hasAllOption) {
+            const allOption = document.createElement("option");
+            allOption.value = "all";
+            allOption.textContent = "All Pets";
+            select.appendChild(allOption);
+        }
+
+        pets.forEach(pet => {
+            const option = document.createElement("option");
+            option.value = pet.id;
+            option.textContent = pet.name;
+            select.appendChild(option);
+        });
+
+        if ([...select.options].some(option => option.value === previousValue)) {
+            select.value = previousValue;
+        }
+    });
+}
+
+displayPetList();
+updatePetSelectOptions();
 
 function loadTodaysFeedings() {
     const today = new Date().toLocaleDateString("en-CA");
@@ -2130,6 +2358,9 @@ function displayFeedingHistory() {
             : savedPets.filter(pet => pet.id === selectedPet);
 
         visiblePets.forEach(pet => {
+            const currentPet = pets.find(p => p.id === pet.id);
+            const displayName = currentPet?.name ?? pet.name;
+
             const summary = document.createElement("p");
 
             const historicalDryCalories = pet.dryCalories ??
@@ -2150,7 +2381,7 @@ function displayFeedingHistory() {
                 (historicalDryCalories + historicalWetCalories);
 
             summary.textContent =
-                `${pet.name}: ${consumedCalories.toFixed(1)} / ${pet.dailyCalories.toFixed(1)} kcal consumed`;
+                `${displayName}: ${consumedCalories.toFixed(1)} / ${pet.dailyCalories.toFixed(1)} kcal consumed`;
 
             const details = document.createElement("details");
 
@@ -2199,7 +2430,7 @@ function displayFeedingHistory() {
 
                 editDryGramsButton.addEventListener("click", () => {
                     const input = prompt(
-                        `Enter the new dry food quantity in grams for ${pet.name}, feeding ${feeding.id}:`,
+                        `Enter the new dry food quantity in grams for ${displayName}, feeding ${feeding.id}:`,
                         feeding.grams.toFixed(1)
                     );
 
@@ -2536,13 +2767,6 @@ function initializeFeedingHistoryFilters() {
     const startDate = document.getElementById("historyStartDate");
     const endDate = document.getElementById("historyEndDate");
     const clearButton = document.getElementById("clearHistoryFilters");
-
-    pets.forEach(pet => {
-        const option = document.createElement("option");
-        option.value = pet.id;
-        option.textContent = pet.name;
-        petFilter.appendChild(option);
-    });
 
     document.getElementById("applyHistoryFilters")
         .addEventListener("click", displayFeedingHistory);
