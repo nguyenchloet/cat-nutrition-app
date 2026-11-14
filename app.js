@@ -1986,6 +1986,42 @@ petForm.addEventListener("submit", event => {
     refreshPetViews();
 });
 
+function removePet(petId) {
+    const pet = pets.find(pet => pet.id === petId);
+
+    if (!pet) {
+        alert("Pet not found.");
+        return;
+    }
+
+    const confirmed = confirm(
+        `Remove ${pet.name} from active tracking? ` +
+        "Their saved feeding and weight history will be preserved."       
+    );
+
+    if (!confirmed) return;
+
+    pets = pets.filter(pet => pet.id !== petId);
+    savePets();
+
+    // Clear today's in-memory tracking data
+    delete feedingData[petId];
+    delete wetFeedings[petId];
+    delete wetFoodOverrides[petId];
+    delete wetFoodEaten[petId];
+    delete wetFoodRecordedMeal[petId];
+
+    // Reset form if this pet was not being edited
+    if (editingPetId === petId) {
+        editingPetId = null;
+        petForm.reset();
+        petForm.hidden = true;
+    }
+
+    displayPetList();
+    refreshPetViews();
+}
+
 function displayPetList() {
     petList.replaceChildren();
 
@@ -2007,7 +2043,18 @@ function displayPetList() {
             document.getElementById("pet-form-title").textContent = `Edit ${pet.name}`;
             petForm.hidden = false;
         });
-        row.append(name, editButton);
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "Remove";
+
+        removeButton.setAttribute("aria-label", `Remove ${pet.name} from active tracking`);
+
+        removeButton.addEventListener("click", () => {
+            removePet(pet.id);
+        });
+
+        row.append(name, editButton, removeButton);
         petList.appendChild(row);
     });
 }
